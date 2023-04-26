@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeStorage.Pages.Authentication.RegisterPage"
+             Title="Opret ny bruger">
+    <VerticalStackLayout
+        Spacing="25"
+        Padding="30,100">
+
+        <Entry Placeholder="Brugernavn"
+               x:Name="Username"/>
+        <Entry Placeholder="Email"
+               x:Name="Email"/>
+        <Entry Placeholder="Kodeord"
+               IsPassword="True"
+               x:Name="Password"/>
+        
+        <Label IsVisible="false" x:Name="ResultText" />
+        
+        
+        <Button Text="Opret bruger"
+                Clicked="RegisterClick"/>
+    </VerticalStackLayout>
+</ContentPage>
