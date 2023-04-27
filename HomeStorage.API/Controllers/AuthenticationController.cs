@@ -41,7 +41,7 @@ namespace HomeStorage.API.Controllers
         {
             ResponseModel response = await _authenticationLogic.Register(model);
             return response.Success ?
-                Ok(response) : StatusCode(StatusCodes.Status500InternalServerError, response);
+                Ok(response) : Conflict(response);
         }
     }
 }

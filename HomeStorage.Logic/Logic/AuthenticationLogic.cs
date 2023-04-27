@@ -79,7 +79,8 @@ namespace HomeStorage.Logic.Logic
             if (result.Succeeded is false)
                 return new()
                 {
-                    Message = "Kunne ikke oprette brugeren, tjek de angivne oplysninger og prøv igen."
+                    Message = ("Kunne ikke oprette brugeren, tjek de angivne oplysninger og prøv igen.\r\n" + 
+                        string.Join("\r\n", result.Errors.Select(x => x.Description))).Trim()
                 };
 
             return new()

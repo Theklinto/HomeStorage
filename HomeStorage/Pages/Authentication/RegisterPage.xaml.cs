@@ -19,8 +19,10 @@ public partial class RegisterPage : ContentPage
 			Username = Username.Text,
 		});
 
-		ResultText.IsVisible = true;
-		ResultText.Text = response.Message;
-		ResultText.TextColor = response.Success ? HSAPI.Colors.Success : HSAPI.Colors.Error;
+		string alertTitle = response.Success ? "Bruger oprettet!" : "Bruger ikke oprettet!";
+		await DisplayAlert(alertTitle, response.Message, "Ok");
+
+		if(response.Success)
+			await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(SignInPage)]);
     }
 }

@@ -4,17 +4,20 @@
              x:Class="HomeStorage.Pages.Authentication.SignInPage"
              Title=""
              Shell.NavBarIsVisible="False">
-    <ScrollView>
+    <AbsoluteLayout>
         <VerticalStackLayout
             Spacing="25"
             Padding="30,0"
-            VerticalOptions="Center">
+            VerticalOptions="Center"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
 
             <Entry
                 Placeholder="Email"
                 x:Name="EmailEntryField"/>
             <Entry 
                 Placeholder="Password"
+                IsPassword="True"
                 x:Name="PasswordEntryField"/>
             <Button
                 Text="Log ind"
@@ -23,7 +26,31 @@
                 Text="Opret ny bruger"
                 Clicked="RegisterClicked"/>
 
-
         </VerticalStackLayout>
-    </ScrollView>
+        <StackLayout
+            x:Name="ActivityIndicatorPanel"
+            Spacing="25"
+            Padding="30,0"
+            VerticalOptions="Fill"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All"
+            IsVisible="False"
+            Background="White"
+            Opacity=".9">
+
+            <StackLayout
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand">
+
+                <ActivityIndicator
+                x:Name="ActivityIndicator"
+                Color="Orange"
+                IsRunning="False"/>
+                <Label
+                    Text="Logger ind..."
+                    FontSize="Title"/>
+            </StackLayout>
+        </StackLayout>
+
+    </AbsoluteLayout>
 </ContentPage>

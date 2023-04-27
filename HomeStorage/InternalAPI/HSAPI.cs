@@ -9,6 +9,6 @@ namespace HomeStorage.InternalAPI
     public static partial class HSAPI
     {
         private static HttpClient _client = new();
-        private const string BaseAPIUrl = "http://192.168.1.181:45456/api/";
+        private const string BaseAPIUrl = "http://192.168.1.181:45455/api/";
     }
 }

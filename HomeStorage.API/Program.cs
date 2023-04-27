@@ -54,6 +54,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+});
+
 #endregion
 
 var app = builder.Build();

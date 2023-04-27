@@ -14,13 +14,14 @@ namespace HomeStorage.InternalAPI
     {
         public static partial class Authentication
         {
-            private static string _url { get; set; } = BaseAPIUrl + "authenticate/";
+            private static string _url { get; set; } = BaseAPIUrl + "auth/";
             public static async Task<JwtTokenModel> Login(LoginModel model)
             {
                 HttpResponseMessage httpResponse = await _client.PostAsJsonAsync(_url + nameof(Login), model);
                 if (httpResponse.IsSuccessStatusCode)
                 {
                     JwtTokenModel jwtTokenModel = JsonConvert.DeserializeObject<JwtTokenModel>(await httpResponse.Content.ReadAsStringAsync());
+                    return jwtTokenModel;
                 }
 
                 return new();
