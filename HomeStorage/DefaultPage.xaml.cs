@@ -1,6 +1,7 @@
 using HomeStorage.DataAccess.AuthenticationModels;
 using HomeStorage.InternalAPI;
 using HomeStorage.Pages.Authentication;
+using System.Net;
 using DeviceStorage = HomeStorage.SecureStorageExtension;
 
 namespace HomeStorage;
@@ -19,7 +20,8 @@ public partial class DefaultPage : ContentPage
         string password = await DeviceStorage.GetAsync(EStorageKey.Password);
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(SignInPage)]);
+            //await Shell.Current.GoToRootAsync(HSAPI.Routing.Pages[typeof(SignInPage)]);
+            await Application.Current.MainPage.Navigation.PushAsync(new SignInPage());
             return;
         }
 
@@ -35,7 +37,8 @@ public partial class DefaultPage : ContentPage
 
             if (string.IsNullOrWhiteSpace(response.Token))
             {
-                await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(SignInPage)]);
+                await HSAPI.Authentication.PurgeAuthenticationStorage();
+                await Application.Current.MainPage.Navigation.PushAsync(new SignInPage());
                 return;
             }
 
@@ -43,6 +46,6 @@ public partial class DefaultPage : ContentPage
             await DeviceStorage.SetAsync(EStorageKey.JwtTokenExpiration, response.Expiration.ToString());
         }
 
-        await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(MainPage)]);
+        Application.Current.MainPage = new AppShell();
     }
 }

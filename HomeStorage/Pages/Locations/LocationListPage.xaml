@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeStorage.Pages.Locations.LocationListPage"
+             xmlns:viewmodels="clr-namespace:HomeStorage.ViewModels.Locations"
+             xmlns:models="clr-namespace:HomeStorage.ModelExtensions"
+             x:DataType="viewmodels:LocationListViewModel"
+             Title="Dine lokationer">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <ListView ItemsSource="{Binding Locations}"
+                  IsVisible="True"
+                  x:Name="LocationListView">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:LocationModel">
+                    <ViewCell>
+                        <Grid Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0"
+                                   Source="{Binding ImageSource}"/>
+                            <Label Text="{Binding Name}"
+                           Grid.Column="1"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Label Text="Du har ingen lokationer"
+               x:Name="EmptyListLabel"
+               FontSize="Large"
+               IsVisible="False"
+               HorizontalOptions="CenterAndExpand"
+               VerticalOptions="CenterAndExpand"
+               TextColor="{StaticResource Gray200}"/>
+
+        <Button Text="+"
+                FontSize="Medium"
+                Grid.Row="1"
+                WidthRequest="50"
+                Margin="5"
+                TextColor="{StaticResource White}"
+                BackgroundColor="{StaticResource Success}"
+                Clicked="NewLocationAsync"/>
+    </Grid>
+</ContentPage>

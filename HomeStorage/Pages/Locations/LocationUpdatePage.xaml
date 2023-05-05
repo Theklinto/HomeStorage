@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeStorage.Pages.Locations.LocationUpdatePage"
+             Title="LocationUpdatePage">
+    <VerticalStackLayout Margin="20"
+                         Spacing="20">
+        <Image x:Name="LocationImagePreview"
+               HeightRequest="150"
+               WidthRequest="150"
+               BackgroundColor="Gray"/>
+        <Entry Placeholder="Lokationsnavn"
+               x:Name="LocationName"/>
+        <Button Text="Vælg billede"
+                Clicked="PickImageAsync"/>
+        <Button Text="Opret"
+                Margin="0,50,0,0"
+                Clicked="CreateNewLocationAsync"/>
+        <Button Text="Annuller"
+                Clicked="BackToLocationListAsync"/>
+    </VerticalStackLayout>
+</ContentPage>

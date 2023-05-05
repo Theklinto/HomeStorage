@@ -38,12 +38,12 @@ public partial class SignInPage : ContentPage
         ActivityIndicator.IsRunning = false;
         ActivityIndicatorPanel.IsVisible = false;
 
-        await Shell.Current.GoToAsync("//" + HSAPI.Routing.Pages[typeof(MainPage)]);
+        Application.Current.MainPage = new AppShell();
     }
 
     private async void RegisterClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(RegisterPage)]);
+        await Application.Current.MainPage.Navigation.PushAsync(new RegisterPage());
         return;
     }
 }

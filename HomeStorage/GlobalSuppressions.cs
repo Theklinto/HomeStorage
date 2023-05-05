@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:HomeStorage.InternalAPI.HSAPI.Authentication._url")]
+[assembly: SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "<Pending>", Scope = "member", Target = "~M:HomeStorage.Pages.Locations.LocationUpdatePage.LoadLocationByIdAsync(System.String)")]

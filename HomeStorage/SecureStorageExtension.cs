@@ -21,7 +21,7 @@ namespace HomeStorage
     public static class SecureStorageExtension
     {
 
-        public static async Task SetAsync(EStorageKey key, string value) => await SecureStorage.Default.SetAsync(Enum.GetName(key.GetType(), key), value);
-        public static async Task<string> GetAsync(EStorageKey key) => await SecureStorage.Default.GetAsync(Enum.GetName(key.GetType(), key));
+        public static async Task SetAsync(EStorageKey key, object value) => await SecureStorage.Default.SetAsync(key.ToString(), value.ToString());
+        public static async Task<string> GetAsync(EStorageKey key) => await SecureStorage.Default.GetAsync(key.ToString());
     }
 }

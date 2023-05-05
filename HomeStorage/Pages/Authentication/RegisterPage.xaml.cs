@@ -12,6 +12,8 @@ public partial class RegisterPage : ContentPage
 
     private async void RegisterClick(object sender, EventArgs e)
     {
+		Unfocus();
+
 		ResponseModel response = await HSAPI.Authentication.Register(new()
 		{
 			Email = Email.Text,
@@ -25,4 +27,6 @@ public partial class RegisterPage : ContentPage
 		if(response.Success)
 			await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(SignInPage)]);
     }
+
+    private async void LoginClick(object sender, EventArgs e) => await Navigation.PushAsync(new SignInPage());
 }

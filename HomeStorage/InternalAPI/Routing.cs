@@ -14,11 +14,15 @@ namespace HomeStorage.InternalAPI
             {
                 //Base
                 {typeof(DefaultPage), "default" },
-                {typeof(MainPage) , "mainpage" },
 
                 //Authentication
                 {typeof(Pages.Authentication.SignInPage), $"{nameof(Authentication)}/login" },
-                {typeof(Pages.Authentication.RegisterPage), $"{nameof(Authentication)}/register" }
+                {typeof(Pages.Authentication.RegisterPage), $"{nameof(Authentication)}/register" },
+                {typeof(Pages.Authentication.SignOutPage), $"{nameof(Authentication)}/logout" },
+
+                //Location
+                {typeof(Pages.Locations.LocationListPage), $"{nameof(Location)}/list" },
+                {typeof(Pages.Locations.LocationUpdatePage), $"{nameof(Location)}/location" },
             };
         }
     }

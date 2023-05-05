@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HomeStorage.Pages.Authentication.SignInPage"
              Title=""
-             Shell.NavBarIsVisible="False">
+             NavigationPage.HasNavigationBar="False">
     <AbsoluteLayout>
         <VerticalStackLayout
             Spacing="25"

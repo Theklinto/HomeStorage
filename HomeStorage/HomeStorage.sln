@@ -5,11 +5,16 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage", "HomeStorage.csproj", "{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeStorage.API", "..\HomeStorage.API\HomeStorage.API.csproj", "{07BE4E0A-A763-4A26-BD12-D30B5383A94B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.API", "..\HomeStorage.API\HomeStorage.API.csproj", "{07BE4E0A-A763-4A26-BD12-D30B5383A94B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeStorage.Logic", "..\HomeStorage.Logic\HomeStorage.Logic.csproj", "{48070C22-3E02-4943-B13B-199F54260E2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.Logic", "..\HomeStorage.Logic\HomeStorage.Logic.csproj", "{48070C22-3E02-4943-B13B-199F54260E2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeStorage.DataAccess", "..\HomeStorage.DataAccess\HomeStorage.DataAccess.csproj", "{E4CFC77D-045D-462B-921D-462E34046BE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.DataAccess", "..\HomeStorage.DataAccess\HomeStorage.DataAccess.csproj", "{E4CFC77D-045D-462B-921D-462E34046BE7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5ED3D421-67E9-4B2B-AE00-726337E016EB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
