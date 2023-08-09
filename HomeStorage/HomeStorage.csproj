@@ -50,9 +50,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="Fody" Version="6.7.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,8 +65,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="DefaultPage.xaml.cs">
-	    <DependentUpon>DefaultPage.xaml</DependentUpon>
+	  <Compile Update="AuthenticatedAppShell.xaml.cs">
+	    <DependentUpon>AuthenticatedAppShell.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Authentication\LandingPage.xaml.cs">
+	    <DependentUpon>LandingPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\Locations\LocationListPage.xaml.cs">
 	    <DependentUpon>LocationListPage.xaml</DependentUpon>
@@ -69,7 +77,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="DefaultPage.xaml">
+	  <MauiXaml Update="Pages\Authentication\LandingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="NewPage1.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Authentication\RegisterPage.xaml">
@@ -85,6 +96,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Locations\LocationUpdatePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="UnauthenticatedAppShell.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

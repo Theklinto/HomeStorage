@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage", "HomeStorage.csproj", "{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.API", "..\HomeStorage.API\HomeStorage.API.csproj", "{07BE4E0A-A763-4A26-BD12-D30B5383A94B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.Logic", "..\HomeStorage.Logic\HomeStorage.Logic.csproj", "{48070C22-3E02-4943-B13B-199F54260E2C}"
@@ -22,12 +20,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8793E4C3-1B05-4E7F-B5B4-090C1B2556C2}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{07BE4E0A-A763-4A26-BD12-D30B5383A94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{07BE4E0A-A763-4A26-BD12-D30B5383A94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07BE4E0A-A763-4A26-BD12-D30B5383A94B}.Release|Any CPU.ActiveCfg = Release|Any CPU

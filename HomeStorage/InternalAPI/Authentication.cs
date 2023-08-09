@@ -31,22 +31,27 @@ namespace HomeStorage.InternalAPI
             public static async Task<ResponseModel> Register(RegisterModel model)
             {
                 HttpResponseMessage httpResponse = await _client.PostAsJsonAsync(_url + nameof(Register), model);
+                
+                if (httpResponse.IsSuccessStatusCode)
+                    return JsonConvert.DeserializeObject<ResponseModel>(await httpResponse.Content.ReadAsStringAsync());
 
-                return JsonConvert.DeserializeObject<ResponseModel>(await httpResponse.Content.ReadAsStringAsync());
+                return new()
+                {
+                    Message = $"{(int)httpResponse.StatusCode}: Der skete en ukendt fejl",
+                };
+
             }
 
-            public static async Task PurgeAuthenticationStorage()
+            public static void PurgeAuthenticationStorage()
             {
-                List<EStorageKey> storageKeys = new()
+                new List<EStorageKey>()
                 {
                     EStorageKey.Username,
                     EStorageKey.Password,
                     EStorageKey.Email,
                     EStorageKey.JwtToken,
                     EStorageKey.JwtTokenExpiration
-                };
-                foreach (EStorageKey storageKey in storageKeys)
-                    await DeviceStorage.SetAsync(storageKey, string.Empty);
+                }.ForEach(DeviceStorage.Remove);
             }
         }
     }

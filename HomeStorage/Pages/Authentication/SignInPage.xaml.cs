@@ -30,15 +30,15 @@ public partial class SignInPage : ContentPage
             return;
         }
 
-        await DeviceStorage.SetAsync(EStorageKey.Email, EmailEntryField.Text);
-        await DeviceStorage.SetAsync(EStorageKey.Password, PasswordEntryField.Text);
-        await DeviceStorage.SetAsync(EStorageKey.JwtToken, jwtTokenModel.Token);
-        await DeviceStorage.SetAsync(EStorageKey.JwtTokenExpiration, jwtTokenModel.Expiration.ToString());
+        DeviceStorage.Set(EStorageKey.Email, EmailEntryField.Text);
+        DeviceStorage.Set(EStorageKey.Password, PasswordEntryField.Text);
+        DeviceStorage.Set(EStorageKey.JwtToken, jwtTokenModel.Token);
+        DeviceStorage.Set(EStorageKey.JwtTokenExpiration, jwtTokenModel.Expiration);
 
         ActivityIndicator.IsRunning = false;
         ActivityIndicatorPanel.IsVisible = false;
 
-        Application.Current.MainPage = new AppShell();
+        Application.Current.MainPage = new AuthenticatedAppShell();
     }
 
     private async void RegisterClicked(object sender, EventArgs e)

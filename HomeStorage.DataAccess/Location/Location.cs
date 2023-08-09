@@ -10,12 +10,14 @@ namespace HomeStorage.DataAccess.Entities
 {
     public partial class Location
     {
-        public string Name { get; set; } = string.Empty;
+        public required string Name { get; set; }
         public Guid LocationId { get; set; }
         [ForeignKey(nameof(Image))]
         public Guid? ImageId { get; set; }
         public virtual Image? Image { get; set; }
-        public virtual List<LocationUser> LocationUsers { get; set; } = new List<LocationUser>();
-
+        public required string Description { get; set; }
+        public virtual List<LocationUser> LocationUsers { get; set; } = new();
+        public virtual List<Category> Categories { get; set; } = new();
+        public virtual List<Product> Products { get; set; } = new();
     }
 }

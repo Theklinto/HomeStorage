@@ -1,5 +1,6 @@
 ﻿using Azure;
 using HomeStorage.DataAccess.AuthenticationModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,52 +20,21 @@ namespace HomeStorage.Logic.Logic
     public class AuthenticationLogic
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
 
         public AuthenticationLogic(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _configuration = configuration;
-        }
-
-        public async Task<JwtTokenModel> Login(LoginModel loginModel)
-        {
-            IdentityUser? user = await _userManager.FindByEmailAsync(loginModel.Email);
-            if (user is not null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
-            {
-                IList<string> userRoles = await _userManager.GetRolesAsync(user);
-
-                List<Claim> authClaims = new()
-                {
-                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
-
-                foreach (string userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                }
-
-                JwtSecurityToken token = GetToken(authClaims);
-
-                return new JwtTokenModel
-                {
-                    Token = new JwtSecurityTokenHandler().WriteToken(token),
-                    Expiration = token.ValidTo
-                };
-            }
-            return new JwtTokenModel();
         }
 
         public async Task<ResponseModel> Register(RegisterModel model)
         {
-            IdentityUser? user = await _userManager.FindByNameAsync(model.Email);
+            IdentityUser? user = await _userManager.FindByEmailAsync(model.Email);
             if (user is not null)
-                return new() 
-                { 
+                return new()
+                {
                     Message = "Email er allerede i brug af en anden bruger."
                 };
 
@@ -79,7 +49,7 @@ namespace HomeStorage.Logic.Logic
             if (result.Succeeded is false)
                 return new()
                 {
-                    Message = ("Kunne ikke oprette brugeren, tjek de angivne oplysninger og prøv igen.\r\n" + 
+                    Message = ("Kunne ikke oprette brugeren, tjek de angivne oplysninger og prøv igen.\r\n" +
                         string.Join("\r\n", result.Errors.Select(x => x.Description))).Trim()
                 };
 
@@ -90,19 +60,34 @@ namespace HomeStorage.Logic.Logic
             };
         }
 
-        private JwtSecurityToken GetToken(List<Claim> authClaims)
+        public async Task<ClaimsIdentity?> CookieLoginAsync(string authHeader)
         {
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? string.Empty));
+            // Get credentials
+            string encodedEmailPassword = authHeader[("Basic ".Length - 1)..].Trim();
+            string emailPassword = Encoding
+            .GetEncoding("iso-8859-1")
+            .GetString(Convert.FromBase64String(encodedEmailPassword));
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(3),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                );
+            // Get email and password
+            int seperatorIndex = emailPassword.IndexOf(':');
+            string email = emailPassword[..seperatorIndex];
+            string password = emailPassword[(seperatorIndex + 1)..];
 
-            return token;
+            IdentityUser? user = await _userManager.FindByEmailAsync(email);
+            if (user is not null && await _userManager.CheckPasswordAsync(user, password))
+            {
+                Claim[] claims = new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                };
+
+                ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return identity;
+            }
+
+            return null;
         }
     }
 }

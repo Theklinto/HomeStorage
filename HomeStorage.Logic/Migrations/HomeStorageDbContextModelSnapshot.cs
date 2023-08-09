@@ -22,24 +22,69 @@ namespace HomeStorage.Logic.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.Property<Guid>("CategoriesCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductsProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CategoriesCategoryId", "ProductsProductId");
+
+                    b.HasIndex("ProductsProductId");
+
+                    b.ToTable("CategoryProduct", (string)null);
+                });
+
+            modelBuilder.Entity("HomeStorage.DataAccess.Entities.Category", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CategoryId");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Categories", (string)null);
+                });
+
             modelBuilder.Entity("HomeStorage.DataAccess.Entities.Image", b =>
                 {
                     b.Property<Guid>("ImageId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte[]>("ImageBytes")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ImageId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("HomeStorage.DataAccess.Entities.Location", b =>
@@ -47,6 +92,10 @@ namespace HomeStorage.Logic.Migrations
                     b.Property<Guid>("LocationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("ImageId")
                         .HasColumnType("uniqueidentifier");
@@ -59,7 +108,7 @@ namespace HomeStorage.Logic.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("HomeStorage.DataAccess.Entities.LocationUser", b =>
@@ -78,6 +127,7 @@ namespace HomeStorage.Logic.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("LocationUserId");
@@ -86,7 +136,42 @@ namespace HomeStorage.Logic.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LocationUsers");
+                    b.ToTable("LocationUsers", (string)null);
+                });
+
+            modelBuilder.Entity("HomeStorage.DataAccess.Entities.Product", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductId");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -287,11 +372,45 @@ namespace HomeStorage.Logic.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.HasOne("HomeStorage.DataAccess.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HomeStorage.DataAccess.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HomeStorage.DataAccess.Entities.Category", b =>
+                {
+                    b.HasOne("HomeStorage.DataAccess.Entities.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.HasOne("HomeStorage.DataAccess.Entities.Location", "Location")
+                        .WithMany("Categories")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Location");
+                });
+
             modelBuilder.Entity("HomeStorage.DataAccess.Entities.Image", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -315,11 +434,30 @@ namespace HomeStorage.Logic.Migrations
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Location");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HomeStorage.DataAccess.Entities.Product", b =>
+                {
+                    b.HasOne("HomeStorage.DataAccess.Entities.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.HasOne("HomeStorage.DataAccess.Entities.Location", "Location")
+                        .WithMany("Products")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -375,7 +513,11 @@ namespace HomeStorage.Logic.Migrations
 
             modelBuilder.Entity("HomeStorage.DataAccess.Entities.Location", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("LocationUsers");
+
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

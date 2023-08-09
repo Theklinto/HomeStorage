@@ -10,6 +10,6 @@ namespace HomeStorage.DataAccess.Entities
     {
         public Guid ImageId { get; set; }
         public Guid UserId { get; set; }
-        public string Url { get; set; } = string.Empty;
+        public byte[] ImageBytes { get; set; } = Array.Empty<byte>();
     }
 }

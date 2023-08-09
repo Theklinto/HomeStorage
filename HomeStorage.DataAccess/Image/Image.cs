@@ -15,5 +15,6 @@ namespace HomeStorage.DataAccess.Entities
         [ForeignKey(nameof(User))]
         public string UserId { get; set; } = string.Empty;
         public virtual IdentityUser User { get; set; } = default!;
+        public byte[] ImageBytes { get; set; } = Array.Empty<byte>();
     }
 }

@@ -37,11 +37,11 @@ namespace HomeStorage.InternalAPI
             string jwtToken = string.Empty;
 
             //Check expiration date
-            string tokenExpiration = await DeviceStorage.GetAsync(EStorageKey.JwtTokenExpiration);
-            if (DateTime.TryParse(tokenExpiration, out DateTime tokenExpirationDate) && tokenExpirationDate < DateTime.Now)
+            DateTime tokenExpiration = DeviceStorage.GetDate(EStorageKey.JwtTokenExpiration);
+            if (tokenExpiration < DateTime.Now)
             {
-                string email = await DeviceStorage.GetAsync(EStorageKey.Email);
-                string password = await DeviceStorage.GetAsync(EStorageKey.Password);
+                string email = DeviceStorage.GetString(EStorageKey.Email) ?? string.Empty;
+                string password = DeviceStorage.GetString(EStorageKey.Password) ?? string.Empty;
                 //Renew token
                 JwtTokenModel tokenModel = await Authentication.Login(new()
                 {
@@ -52,18 +52,18 @@ namespace HomeStorage.InternalAPI
                 //Reauthentication failed
                 if (tokenModel.Token is null)
                 {
-                    await Authentication.PurgeAuthenticationStorage();
-                    Application.Current.MainPage = new NavigationPage(new SignInPage());
+                    Authentication.PurgeAuthenticationStorage();
+                    Application.Current.MainPage = new UnauthenticatedAppShell();
                     return;
                 }
 
-                await DeviceStorage.SetAsync(EStorageKey.JwtToken, tokenModel.Token);
-                await DeviceStorage.SetAsync(EStorageKey.JwtTokenExpiration, tokenModel.Expiration);
+                DeviceStorage.Set(EStorageKey.JwtToken, tokenModel.Token);
+                DeviceStorage.Set(EStorageKey.JwtTokenExpiration, tokenModel.Expiration);
                 jwtToken = tokenModel.Token;
             }
 
             if (string.IsNullOrWhiteSpace(jwtToken))
-                jwtToken = await DeviceStorage.GetAsync(EStorageKey.JwtToken);
+                jwtToken = DeviceStorage.GetString(EStorageKey.JwtToken) ?? string.Empty;
 
             client.DefaultRequestHeaders.Authorization = new("Bearer", jwtToken);
         }

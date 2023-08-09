@@ -12,18 +12,20 @@ namespace HomeStorage.InternalAPI
         {
             public static readonly Dictionary<Type, string> Pages = new()
             {
-                //Base
-                {typeof(DefaultPage), "default" },
-
-                //Authentication
-                {typeof(Pages.Authentication.SignInPage), $"{nameof(Authentication)}/login" },
-                {typeof(Pages.Authentication.RegisterPage), $"{nameof(Authentication)}/register" },
-                {typeof(Pages.Authentication.SignOutPage), $"{nameof(Authentication)}/logout" },
-
                 //Location
                 {typeof(Pages.Locations.LocationListPage), $"{nameof(Location)}/list" },
                 {typeof(Pages.Locations.LocationUpdatePage), $"{nameof(Location)}/location" },
             };
+
+            public static readonly Dictionary<Type, string> UnauthenticatedPages = new List<Type>()
+            {
+                typeof(Pages.Authentication.LandingPage),
+                typeof(Pages.Authentication.SignInPage),
+                typeof(Pages.Authentication.RegisterPage),
+                typeof(Pages.Authentication.SignOutPage),
+            }.ToDictionary(
+                key => key,
+                val => $"{nameof(Authentication)}/{val.Name}");
         }
     }
 }

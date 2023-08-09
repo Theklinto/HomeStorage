@@ -8,6 +8,8 @@ using System.Security.Claims;
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace HomeStorage.API.Controllers
 {
@@ -23,21 +25,40 @@ namespace HomeStorage.API.Controllers
             _authenticationLogic = authenticationLogic;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromHeader(Name = "Authorization")] string authHeader)
         {
-            JwtTokenModel jwtToken = await _authenticationLogic.Login(model);
-            if (jwtToken.Expiration.GetValueOrDefault() > DateTime.Now)
-                return Ok(jwtToken);
+            ClaimsIdentity? identity = await _authenticationLogic.CookieLoginAsync(authHeader);
 
-            return Unauthorized();
+            if (identity is null)
+                return Unauthorized();
 
+            AuthenticationProperties properties = new()
+            {
+                IsPersistent = true
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity), properties);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("logout")]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok();
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromForm] RegisterModel model)
         {
             ResponseModel response = await _authenticationLogic.Register(model);
             return response.Success ?

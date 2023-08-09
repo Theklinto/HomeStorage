@@ -24,39 +24,45 @@ namespace HomeStorage.Logic.Logic
             _db = dbContext;
         }
 
-        public async Task<Guid> CreateImageAsync(byte[] imageBytes, IdentityUser user)
+        public async Task<Guid> CreateImageAsync(IFormFile file, IdentityUser user)
         {
+            using MemoryStream memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            byte[] imageBytes = memoryStream.ToArray();
+
             if (imageBytes.Length <= 0)
                 return new();
-
-            string imageBasePath = _config.GetSection("ImagesPath").Value ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(imageBasePath))
-                throw new Exception("No ImagePath is given");
 
             Image? image = new()
             {
                 User = user,
+                ImageBytes = imageBytes,
             };
 
             //Save and retrive id
             await _db.Images.AddAsync(image);
             await _db.SaveChangesAsync();
 
-            string path = Path.Combine(imageBasePath, image.ImageId.ToString() + ".png");
-            using FileStream fileStream = new(path, FileMode.Create);
-            await fileStream.WriteAsync(imageBytes);
-
-            image.Path = path;
-            await _db.SaveChangesAsync();
-
             return image.ImageId;
         }
 
-        public async Task<string> GetImagePathAsync(Guid imageId)
+        public async Task<Image> UpdateImageAsync(Guid imageId, IFormFile imageFile)
         {
-            Image? image = await _db.Images.FirstOrDefaultAsync(x => x.ImageId == imageId);
-            return image is not null ?
-                image.Path : string.Empty;
+            using MemoryStream memoryStream = new();
+            await imageFile.CopyToAsync(memoryStream);
+
+            Image image = await _db.Images.FirstOrDefaultAsync(x => x.ImageId == imageId) ?? throw new Exception("ImageId not found");
+            image.ImageBytes = memoryStream.ToArray();
+
+            await _db.SaveChangesAsync();
+
+            return image;
+        }
+
+        public async Task<Image?> GetImageAsync(Guid ImageId)
+        {
+            Image? image = await _db.Images.FirstOrDefaultAsync(x => x.ImageId == ImageId);
+            return image;
         }
     }
 }

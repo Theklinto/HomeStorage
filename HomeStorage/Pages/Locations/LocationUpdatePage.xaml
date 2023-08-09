@@ -2,14 +2,19 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HomeStorage.Pages.Locations.LocationUpdatePage"
+             xmlns:viewModels="clr-namespace:HomeStorage.ViewModels.Locations"
+             x:DataType="viewModels:LocationViewModel"
              Title="LocationUpdatePage">
+    
     <VerticalStackLayout Margin="20"
                          Spacing="20">
         <Image x:Name="LocationImagePreview"
                HeightRequest="150"
                WidthRequest="150"
-               BackgroundColor="Gray"/>
+               BackgroundColor="Gray"
+               Source="{Binding Location.NewImageSource}"/>
         <Entry Placeholder="Lokationsnavn"
+               Text="{Binding Location.Name}"
                x:Name="LocationName"/>
         <Button Text="Vælg billede"
                 Clicked="PickImageAsync"/>

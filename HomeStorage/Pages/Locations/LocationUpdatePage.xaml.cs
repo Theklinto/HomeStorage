@@ -1,5 +1,6 @@
 using HomeStorage.InternalAPI;
 using HomeStorage.ModelExtensions;
+using HomeStorage.ViewModels.Locations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
@@ -8,25 +9,20 @@ namespace HomeStorage.Pages.Locations;
 [QueryProperty(nameof(LocationIdString), "Id")]
 public partial class LocationUpdatePage : ContentPage
 {
-    public string LocationIdString
-    {
-        set => LoadLocationByIdAsync(value);
-    }
+    private LocationViewModel _viewModel = new();
+    public string LocationIdString { get; set; }
 
-    private LocationModel _location;
     public LocationUpdatePage()
     {
         InitializeComponent();
+        BindingContext = _viewModel;
     }
 
-    public async void LoadLocationByIdAsync(string locationIdString)
+    protected override async void OnAppearing()
     {
-        Guid.TryParse(locationIdString, out Guid locationId);
-        _location = await HSAPI.Location.GetLocationByIdAsync(locationId);
-
-        //Initialize either edit or new
-        LocationImagePreview.Source = ImageSource.FromUri(_location.ImageUrl);
-        LocationName.Text = _location.Name;
+        base.OnAppearing();
+        Guid.TryParse(LocationIdString, out Guid locationId);
+        await _viewModel.LoadLocationByIdAsync(locationId);
     }
 
     private async void PickImageAsync(object sender, EventArgs e)
@@ -37,19 +33,14 @@ public partial class LocationUpdatePage : ContentPage
             return;
 
         Stream stream = await file.OpenReadAsync();
-        LocationImagePreview.Source = ImageSource.FromStream(() => stream);
-
         using MemoryStream memoryStream = new();
         await stream.CopyToAsync(memoryStream);
-        _location.NewImage = memoryStream.ToArray();
-
+        _viewModel.Location.NewImage = memoryStream.ToArray();
     }
 
     private async void CreateNewLocationAsync(object sender, EventArgs e)
     {
-        _location.Name = LocationName.Text;
-
-        ResponseModel response = await HSAPI.Location.CreateNewLocationAsync(_location);
+        ResponseModel response = await HSAPI.Location.CreateNewLocationAsync(_viewModel.Location);
 
         if (response.Success)
         {
@@ -63,5 +54,6 @@ public partial class LocationUpdatePage : ContentPage
         }
     }
 
-    private async void BackToLocationListAsync(object sender, EventArgs e) => await Navigation.PopAsync();
+    private async void BackToLocationListAsync(object sender, EventArgs e) => 
+        await Shell.Current.GoToAsync(HSAPI.Routing.Pages[typeof(LocationListPage)]);
 }

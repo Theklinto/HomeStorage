@@ -11,7 +11,7 @@ namespace HomeStorage.ModelExtensions
 {
     public class LocationModel : DataAccess.Entities.LocationModel
     {
-        public Uri ImageUrl => HSAPI.Image.GetUri(ImageId.GetValueOrDefault());
-        public ImageSource ImageSource => HSAPI.Image.GetSource(ImageId.GetValueOrDefault());
+        public ImageSource NewImageSource => ImageSource.FromStream(() => new MemoryStream(NewImage ?? Array.Empty<byte>()));
+        //public ImageSource ImageSource => ImageSource.FromStream(() => new MemoryStream(Image ?? Array.Empty<byte>()));
     }
 }

@@ -12,6 +12,9 @@ namespace HomeStorage.Logic.DbContext
         public DbSet<Location> Locations { get; set; }
         public DbSet<LocationUser> LocationUsers { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
