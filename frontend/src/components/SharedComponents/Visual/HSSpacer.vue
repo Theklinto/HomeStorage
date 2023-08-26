@@ -6,7 +6,7 @@
 interface Props {
     height: number;
 }
-const props = defineProps<Props>();
+const _props = defineProps<Props>();
 </script>
 
 <style scoped></style>

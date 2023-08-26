@@ -42,7 +42,6 @@
 import { CategoryUpdateModel } from "@/models/Category/CategoryUpdateModel";
 import { ModalData } from "@/models/SharedModels/ModalData";
 import { CategoryService } from "@/services/CategoryService";
-import { ImageService } from "@/services/ImageService";
 import LoadingComponent from "../SharedComponents/LoadingComponent.vue";
 import ModalComponent from "../SharedComponents/ModalComponent.vue";
 import ImagePreview from "../SharedComponents/ImagePreview.vue";
@@ -51,7 +50,6 @@ import { Ref, computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import HSImageInput from "../SharedComponents/Input/HSImageInput.vue";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
-import { Icon } from "@/services/IconService";
 import { BootstrapType } from "@/services/BootstrapService";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
 import HSSpacer from "../SharedComponents/Visual/HSSpacer.vue";
@@ -63,32 +61,11 @@ const route = useRoute();
 const router = useRouter();
 const categoryService = new CategoryService();
 
-const imagePreview = computed<string>(() => {
-    if (categoryUpdateModel.value.newImage && categoryUpdateModel.value.newImage.size > 0) {
-        return URL.createObjectURL(categoryUpdateModel.value.newImage);
-    } else if (categoryUpdateModel.value.imageId) {
-        return ImageService.getImageById(categoryUpdateModel.value.imageId);
-    } else {
-        return "";
-    }
-});
-
 const editMode = computed<boolean>(() => {
     console.log("Computing id", categoryUpdateModel.value);
     if (categoryUpdateModel.value.categoryId) return true;
     else return false;
 });
-
-function updateImage(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target && target.files && (target.files[0]?.size ?? false)) {
-        categoryUpdateModel.value.newImage = target.files[0];
-    }
-}
-
-function clearImage() {
-    categoryUpdateModel.value.newImage = null;
-}
 
 async function createCategory() {
     isLoading.value = true;

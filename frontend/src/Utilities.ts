@@ -12,4 +12,6 @@ export class Utilities {
             reader.onerror = (error) => reject(error);
         });
     }
+
+    public static readonly dateFormat = "yyyy-MM-DD";
 }

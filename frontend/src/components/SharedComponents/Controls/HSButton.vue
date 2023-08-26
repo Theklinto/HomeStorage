@@ -15,8 +15,8 @@ import { computed } from "vue";
 import HSIcon from "../Visual/HSIcon.vue";
 
 interface Props {
-    label: string;
-    type: BootstrapType;
+    label?: string;
+    type?: BootstrapType;
     icon?: Icon;
     disableMargin?: boolean;
     width?: number;

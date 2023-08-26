@@ -5,13 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 import { CategoryService } from "@/services/CategoryService";
 import { CategoryModel } from "@/models/Category/CategoryModel";
 import { CardData, CardDataButton } from "@/models/SharedModels/CardData";
 import VerticalCards from "../SharedComponents/VerticalCards.vue";
 import { ImageService } from "@/services/ImageService";
-import HeaderComponent from "../SharedComponents/HeaderComponent.vue";
 import { Icon } from "@/services/IconService";
 import { BootstrapType } from "@/services/BootstrapService";
 

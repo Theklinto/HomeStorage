@@ -1,0 +1,15 @@
+{
+    "name": "HomeStorage",
+    "short_name": "HomeStorage",
+    "theme_color": "#4DBA87",
+    "icons": [
+        {
+            "src": "./src/assets/box-open-solid.svg",
+            "sizes": "any",
+            "type": "image/svg"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#000000"
+}

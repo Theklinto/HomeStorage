@@ -3,82 +3,86 @@
         <div
             v-for="card in cardData"
             :key="card.Id"
-            class="card"
-            :class="getDisabledOverlay(card)"
-            :style="card.cardSwiped ? card.cardStyling : ''"
-            v-touch:swipe.left="
+            v-touch:hold="
                 () => {
-                    toggleSwipeButton(card.Id, true);
-                }
-            "
-            v-touch:swipe.right="
-                () => {
-                    toggleSwipeButton(card.Id, false);
+                    toggleSwipeButton(card.Id);
                 }
             "
         >
-            <RouterLink :to="card.route">
-                <div class="row card-body text-white">
-                    <div class="col-4">
-                        <img :src="card.ImageUrl" class="rounded" />
+            <div class="card" :class="{ 'disabled-overlay': card.count == 0 }">
+                <RouterLink :to="card.route">
+                    <div class="row card-body text-white">
+                        <div class="col-4">
+                            <img :src="card.ImageUrl" class="rounded" />
+                        </div>
+                        <div class="col-8">
+                            <h5 class="card-title">{{ card.Title }}</h5>
+                            <div>
+                                <h6 v-if="card.count" class="d-inline">{{ card.count }} x</h6>
+                                <h6 class="card-subtitle d-inline">
+                                    {{ card.Description }}
+                                </h6>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-8">
-                        <h5 class="card-title">{{ card.Title }}</h5>
-                        <div>
-                            <h6 v-if="card.count" class="d-inline">{{ card.count }} x</h6>
-                            <h6 class="card-subtitle d-inline">
-                                {{ card.Description }}
-                            </h6>
+                </RouterLink>
+            </div>
+            <Transition>
+                <div v-if="card.cardSwiped">
+                    <div
+                        v-if="swipeComponent == SwipeComponent.Button"
+                        class="justify-content-around d-flex w-100"
+                        style="font-size: 2em"
+                    >
+                        <HSButton
+                            v-for="button in card.buttons.filter((x) => x.display)"
+                            :key="button.id"
+                            @click="() => router.push(button.route)"
+                            :icon="button.icon"
+                            :type="button.type"
+                            :invert="true"
+                        />
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center" v-else>
+                        <div class="row gx-5">
+                            <HSIncrementInput
+                                class="col-9"
+                                v-model="card.count"
+                                :disable-margin="true"
+                            />
+                            <HSButton
+                                class="col-2"
+                                style="width: fit-content !important"
+                                :icon="Icon.Save"
+                                :type="BootstrapType.Warning"
+                                :disable-margin="true"
+                                @click="() => saveCount(card.Id)"
+                            ></HSButton>
                         </div>
                     </div>
                 </div>
-            </RouterLink>
-            <div
-                v-if="swipeComponent == SwipeComponent.Button"
-                class="swiped-btn"
-                :style="getSwipedButtonsWidth(card)"
-            >
-                <HSButton
-                    v-for="button in card.buttons.filter((x) => x.display)"
-                    :key="button.id"
-                    @click="() => router.push(button.route)"
-                    :icon="button.icon"
-                    :type="button.type"
-                    :invert="true"
-                />
-            </div>
-            <div class="swiped-incremental d-flex justify-content-center align-items-center" v-else>
-                <div class="row gx-5">
-                    <HSIncrementInput class="col-9" v-model="card.count" :disable-margin="true" />
-                    <HSButton
-                        class="col-2"
-                        style="width: fit-content !important"
-                        :icon="Icon.Save"
-                        :type="BootstrapType.Warning"
-                        :disable-margin="true"
-                        @click="() => saveCount(card.Id)"
-                    ></HSButton>
-                </div>
-            </div>
+            </Transition>
         </div>
     </div>
+    <!-- Adjust for bottm navbar -->
+    <HSSpacer v-if="NavigationService.navbarVisible" :height="5" />
 </template>
 
 <script setup lang="ts">
 import { CardData, SwipeComponent } from "@/models/SharedModels/CardData";
-import { CSSProperties, Ref, computed, ref, watch } from "vue";
+import { Ref, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import HSIncrementInput from "./Input/HSIncrementInput.vue";
 import HSButton from "./Controls/HSButton.vue";
-import { BootstrapService, BootstrapType } from "@/services/BootstrapService";
-import { Icon, IconService } from "@/services/IconService";
-import HSIcon from "@/components/SharedComponents/Visual/HSIcon.vue";
-import { Button } from "bootstrap";
+import { BootstrapType } from "@/services/BootstrapService";
+import { Icon } from "@/services/IconService";
+import HSSpacer from "./Visual/HSSpacer.vue";
+import { NavigationService } from "@/services/NavigationService";
 
 interface Props {
     cards: CardData[];
     enableSwipe: boolean;
-    swipeComponent: SwipeComponent;
+    swipeComponent?: SwipeComponent;
 }
 const props = withDefaults(defineProps<Props>(), {
     swipeComponent: SwipeComponent.Button,
@@ -91,19 +95,7 @@ const countMap = ref(new Map<string, number>([]));
 watch(
     () => props.cards,
     (cards) => {
-        cardData.value = cards.map((card) => {
-            //Calculate card offset when swiped
-            let offset = 0;
-            if (props.swipeComponent == SwipeComponent.Button) {
-                offset = -20 * card.buttons.filter(x => x.display).length;
-            } else if (props.swipeComponent == SwipeComponent.Incremental) {
-                offset = -65;
-            }
-            card.cardStyling = {
-                transform: `translateX(${offset}%)`,
-            };
-            return card;
-        });
+        cardData.value = cards;
         countMap.value.clear();
         cards.forEach((card) => {
             countMap.value.set(card.Id, card.count as number);
@@ -111,34 +103,26 @@ watch(
     }
 );
 
-function toggleSwipeButton(cardId: string, show: boolean) {
+function toggleSwipeButton(cardId: string) {
     cardData.value = cardData.value.map((card) => {
-        card.cardSwiped = show && props.enableSwipe && card.Id == cardId;
-        if (props.swipeComponent == SwipeComponent.Incremental && card.cardSwiped) {
+        card.cardSwiped = !card.cardSwiped && props.enableSwipe && card.Id == cardId;
+        if (props.swipeComponent == SwipeComponent.Incremental) {
             card.count = countMap.value.get(cardId);
         }
         return card;
     });
 }
-function getDisabledOverlay(card: CardData) {
-    if (typeof card.count == "number" && card.count == 0) {
-        return "disabled-overlay";
-    }
-    return "";
-}
 
 function saveCount(cardId: string) {
-    const count = cardData.value.find((x) => x.Id == cardId)?.count;
-    emit("update:count", cardId, count as number);
-}
-
-function getSwipedButtonsWidth(card: CardData): CSSProperties {
-    const offset = 20 * card.buttons.filter(x => x.display).length;
-    const width = offset - 5;
-    return {
-        width: `${offset - 5}%`,
-        right: `${0 - offset}%`,
-    };
+    let count = 0;
+    cardData.value = cardData.value.map((x) => {
+        if (x.Id == cardId) {
+            count = x.count as number;
+            x.cardSwiped = !x.cardSwiped;
+        }
+        return x;
+    });
+    emit("update:count", cardId, count);
 }
 </script>
 
@@ -164,9 +148,6 @@ img {
     color: var(--bs-gray);
     font-size: 0.75em;
 }
-.card-swiped-btn {
-    transform: translateX(-20%);
-}
 .card .swiped-btn {
     display: flex;
     align-items: center;
@@ -175,18 +156,5 @@ img {
     height: 100%;
     position: absolute;
     font-size: 2em;
-}
-
-.card-swiped-incremental {
-    transform: translateX(-65%);
-}
-.card .swiped-incremental {
-    justify-content: center;
-    align-items: center;
-    right: -65%;
-    width: 60%;
-    height: 100%;
-    position: absolute;
-    font-size: 0;
 }
 </style>

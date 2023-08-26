@@ -47,7 +47,6 @@ import { LocationUserService } from "@/services/LocationUserService";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
 import { Icon } from "@/services/IconService";
 import { BootstrapType } from "@/services/BootstrapService";
-import HSInput from "../SharedComponents/Input/HSInput.vue";
 import LoadingComponent from "../SharedComponents/LoadingComponent.vue";
 import ModalComponent from "../SharedComponents/ModalComponent.vue";
 import { ModalData } from "@/models/SharedModels/ModalData";

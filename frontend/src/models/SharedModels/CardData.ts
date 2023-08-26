@@ -2,7 +2,6 @@ import { BootstrapType } from "@/services/BootstrapService";
 import { Icon } from "@/services/IconService";
 import { RouteLocationRaw } from "vue-router";
 import { v4 as uuid } from "uuid";
-import { CSSProperties, StyleValue } from "vue";
 
 export class CardData {
     constructor(init?: Partial<CardData>) {
@@ -17,7 +16,6 @@ export class CardData {
     public route!: RouteLocationRaw;
     public cardSwiped = false;
     public buttons: CardDataButton[] = [];
-    public cardStyling!: CSSProperties;
 }
 
 export class CardDataButton {

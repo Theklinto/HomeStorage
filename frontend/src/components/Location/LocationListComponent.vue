@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 import VerticalCards from "../SharedComponents/VerticalCards.vue";
 import { CardData, CardDataButton } from "@/models/SharedModels/CardData";
 import { LocationService } from "@/services/LocationService";

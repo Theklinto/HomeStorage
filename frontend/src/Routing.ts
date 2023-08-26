@@ -8,15 +8,12 @@ import CategoryListComponent from "@/components/Category/CategoryListComponent.v
 import CategoryEditComponent from "@/components/Category/CategoryEditComponent.vue";
 import ProductEditComponent from "@/components/Product/ProductEditComponent.vue";
 import ProductListComponent from "@/components/Product/ProductListComponent.vue";
-import CategoryComponent from "@/components/Category/CategoryComponent.vue";
 import LocationUserManagment from "@/components/Location/LocationUserManagment.vue";
 import {
     CategoriesAddNavbar,
-    DefaultNavbar,
     EmptyNavbar,
     LocationsAddNavbar,
 } from "./navbarDefinitions";
-import { ProductModel } from "./models/Product/ProductModel";
 
 export class Routes {
     static routes: RouteRecordRaw[] = [

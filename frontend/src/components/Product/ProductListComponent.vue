@@ -83,7 +83,7 @@ async function updateCount(productId: string, count: number) {
     });
 
     Object.assign(updateModel, model);
-    const updated = await productService.updateProduct(updateModel);
+    await productService.updateProduct(updateModel);
 }
 </script>
 

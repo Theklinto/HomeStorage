@@ -51,14 +51,12 @@
 import { ref, Ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { LocationUpdateModel } from "@/models/Location/LocationUpdateModel";
-import { ImageService } from "@/services/ImageService";
 import { LocationService } from "@/services/LocationService";
 import ModalComponent from "../SharedComponents/ModalComponent.vue";
 import { ModalData } from "@/models/SharedModels/ModalData";
 import LoadingComponent from "../SharedComponents/LoadingComponent.vue";
 import ImagePreview from "../SharedComponents/ImagePreview.vue";
 import HSImageInput from "@/components/SharedComponents/Input/HSImageInput.vue";
-import { Icon } from "@/services/IconService";
 import { BootstrapType } from "@/services/BootstrapService";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
@@ -75,17 +73,6 @@ const editMode = computed<boolean>(() => {
     if (locationUpdateModel.value.locationId) return true;
     else return false;
 });
-
-function updateImage(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target && target.files && (target.files[0]?.size ?? false)) {
-        locationUpdateModel.value.newImage = target.files[0];
-    }
-}
-
-function clearImage() {
-    locationUpdateModel.value.newImage = null;
-}
 
 async function createLocation() {
     const result = await locationService.createLocation(locationUpdateModel.value);

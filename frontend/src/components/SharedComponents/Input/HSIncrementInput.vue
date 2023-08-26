@@ -29,8 +29,8 @@ import { computed, ref, watch } from "vue";
 
 interface Props {
     label: string;
-    modelValue: number | undefined | null;
-    disableMargin: boolean;
+    modelValue?: number | null;
+    disableMargin?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

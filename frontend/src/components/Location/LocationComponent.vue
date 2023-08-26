@@ -45,19 +45,15 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onBeforeMount, onMounted, ref, watch } from "vue";
+import { Ref, onBeforeMount, ref, watch } from "vue";
 import CategoryListComponent from "../Category/CategoryListComponent.vue";
 import { useRoute } from "vue-router";
-import { CategoryModel } from "@/models/Category/CategoryModel";
-import { CategoryService } from "@/services/CategoryService";
 import { NavigationService } from "@/services/NavigationService";
 import { CategoriesAddNavbar, ProductsAddNavbar } from "@/navbarDefinitions";
 import ProductListComponent from "../Product/ProductListComponent.vue";
 
 const showCategories = ref(true);
 const locationId: Ref<string> = ref("");
-const categories: Ref<CategoryModel[] | undefined> = ref(undefined);
-const categoryService = new CategoryService();
 const route = useRoute();
 
 onBeforeMount(() => {

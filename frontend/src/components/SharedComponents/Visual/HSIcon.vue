@@ -6,7 +6,7 @@
 import { Icon, IconService } from "@/services/IconService";
 
 interface Props {
-    icon: Icon;
+    icon?: Icon;
 }
 const props = defineProps<Props>();
 </script>

@@ -1,9 +1,10 @@
-import { DefaultNavbar } from "@/navbarDefinitions";
+import { DefaultNavbar, EmptyNavbar } from "@/navbarDefinitions";
 import { Ref, ref } from "vue";
 import { RouteLocationRaw } from "vue-router";
 
 export class NavigationService {
     public static navigationComponent: Ref<Navbar> = ref(new DefaultNavbar());
+    public static navbarVisible = this.navigationComponent.value != new EmptyNavbar();
 }
 
 export interface Navbar {

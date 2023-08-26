@@ -1,32 +1,33 @@
 <template>
     <div class="mb-3">
         <label class="form-label">{{ label }}</label>
-        <input @change="onChange" type="date" class="form-control" :value="formattedDate" />
+        <input
+            @change="onChange"
+            type="date"
+            class="form-control"
+            :value="formattedDate.format(Utilities.dateFormat)"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
+import { Utilities } from "@/Utilities";
 import moment from "moment";
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 
 interface Props {
     label: string;
-    modelValue: moment.Moment | undefined | null;
+    modelValue: string;
 }
+
 const props = defineProps<Props>();
 const emit = defineEmits(["update:modelValue"]);
-const date = ref(props.modelValue);
-const formattedDate = computed(() => {
-    if (date.value) {
-        return date.value.format("yyyy-MM-DD");
-    }
-    return "";
-});
+const formattedDate = ref(moment(props.modelValue));
 
 function onChange(event: Event) {
     const element = event.target as HTMLInputElement;
-    date.value = moment(element.value);
-    emit("update:modelValue", date.value);
+    formattedDate.value = moment(element.value);
+    emit("update:modelValue", formattedDate.value.toISOString());
 }
 </script>
 

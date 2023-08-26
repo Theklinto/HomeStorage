@@ -31,22 +31,30 @@
                 class="form-control dropdown-container-inner"
                 :class="showAvailableValues ? 'shown' : 'hidden'"
             >
-                <button
-                    v-for="select in availableValues"
-                    :key="select.value"
-                    class="btn btn-primary btn-disabled m-1"
-                    @click="
-                        () => {
-                            addSelect(select);
-                        }
-                    "
-                >
-                    <span>{{ select.name }}</span>
-                    <span
-                        class="multiselect-remove"
-                        :class="IconService.GetSolidIcon(Icon.Plus)"
-                    ></span>
-                </button>
+                <HSInput
+                    :class="'dropdown-searchbar'"
+                    placeholder="Search category"
+                    v-model="searchString"
+                    :show-clear-button="true"
+                />
+                <div :class="'dropdown-container-scrollview'">
+                    <button
+                        v-for="select in availableValues"
+                        :key="select.value"
+                        class="btn btn-primary btn-disabled m-1"
+                        @click="
+                            () => {
+                                addSelect(select);
+                            }
+                        "
+                    >
+                        <span>{{ select.name }}</span>
+                        <span
+                            class="multiselect-remove"
+                            :class="IconService.GetSolidIcon(Icon.Plus)"
+                        ></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -57,6 +65,7 @@ import { MultiSelectData } from "@/models/SharedModels/MultiSelectModel";
 import { BootstrapService, BootstrapType } from "@/services/BootstrapService";
 import { Icon, IconService } from "@/services/IconService";
 import { Ref, computed, ref, watch } from "vue";
+import HSInput from "./HSInput.vue";
 
 interface Props {
     label: string;
@@ -66,12 +75,18 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(["update:modelValue"]);
 
+const searchString = ref("");
 const showAvailableValues = ref(false);
 const selectedValues: Ref<MultiSelectData[]> = ref(props.modelValue);
 const availableValues = computed<MultiSelectData[]>(() => {
+    const searchExpression = searchString.value.toLocaleLowerCase();
     const notUsedSelects = props.lookup.filter((data) => {
         if (!selectedValues.value.find((x) => x.value == data.value)) {
-            return data;
+            if (
+                searchString.value == "" ||
+                data.name.toLocaleLowerCase().includes(searchExpression)
+            )
+                return data;
         }
     });
     return notUsedSelects;
@@ -90,8 +105,8 @@ function removeSelect(select: MultiSelectData) {
 }
 function addSelect(select: MultiSelectData) {
     selectedValues.value = props.lookup.filter((value) => {
-        return selectedValues.value.includes(value) || value == select
-    })
+        return selectedValues.value.includes(value) || value == select;
+    });
     emit("update:modelValue", selectedValues.value);
 }
 </script>
@@ -111,8 +126,11 @@ function addSelect(select: MultiSelectData) {
     position: absolute !important;
     width: 100% !important;
     z-index: 10;
-    max-height: 7em;
     min-height: 3.5em;
+}
+.dropdown-container-scrollview {
+    overflow-x: scroll;
+    max-height: 10em;
 }
 .dropdown-container .hidden {
     visibility: hidden;

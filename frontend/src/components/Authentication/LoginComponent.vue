@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, renderSlot } from "vue";
+import { ref } from "vue";
 import { LoginModel } from "@/models/Authentication/LoginModel";
 import { AuthenticationService } from "@/services/AuthenticationService";
 import { useRouter } from "vue-router";
@@ -39,7 +39,7 @@ const loginModel = ref(new LoginModel());
 const isLoading = ref(false);
 const router = useRouter();
 
-async function login(event: Event) {
+async function login() {
     isLoading.value = true;
     try {
         const response = await authService.login(loginModel.value);

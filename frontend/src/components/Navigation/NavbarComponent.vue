@@ -41,9 +41,7 @@ import { NavBarElement } from "@/services/NavigationService";
 import { Ref, ref, watch } from "vue";
 import { NavigationService } from "@/services/NavigationService";
 import { DefaultNavbar } from "@/navbarDefinitions";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
 const navbarElems: Ref<NavBarElement[]> = ref(new DefaultNavbar().getNavbar());
 const showNavbar = ref(true);
 

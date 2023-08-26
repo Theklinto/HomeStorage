@@ -34,17 +34,8 @@
                 :type="BootstrapType.Warning"
                 @click="updateProduct"
             />
-            <HSButton
-                v-else
-                :label="'Add'"
-                :type="BootstrapType.Success"
-                @click="createProduct"
-            />
-            <HSButton
-                :label="'Cancel'"
-                :type="BootstrapType.Secondary"
-                @click="router.back"
-            />
+            <HSButton v-else :label="'Add'" :type="BootstrapType.Success" @click="createProduct" />
+            <HSButton :label="'Cancel'" :type="BootstrapType.Secondary" @click="router.back" />
             <HSButton
                 v-if="editMode"
                 :label="'Delete'"
@@ -68,7 +59,6 @@ import HSInput from "../SharedComponents/Input/HSInput.vue";
 import HSIncrementInput from "../SharedComponents/Input/HSIncrementInput.vue";
 import HSDatepicker from "../SharedComponents/Input/HSDatepicker.vue";
 import HSImageInput from "../SharedComponents/Input/HSImageInput.vue";
-import { Icon } from "@/services/IconService";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
 import { BootstrapType } from "@/services/BootstrapService";
 import HSSpacer from "../SharedComponents/Visual/HSSpacer.vue";
