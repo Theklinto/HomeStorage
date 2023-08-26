@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.API", "HomeStorage.API\HomeStorage.API.csproj", "{9ADBC230-4704-4EC3-B7CA-4632F8A5749C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.DataAccess", "HomeStorage.DataAccess\HomeStorage.DataAccess.csproj", "{673439F6-B8DC-48DA-BEF5-D8E59746A38B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeStorage.Logic", "HomeStorage.Logic\HomeStorage.Logic.csproj", "{7BEDE259-3C3B-4063-BDDB-9C835E167392}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9ADBC230-4704-4EC3-B7CA-4632F8A5749C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ADBC230-4704-4EC3-B7CA-4632F8A5749C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ADBC230-4704-4EC3-B7CA-4632F8A5749C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ADBC230-4704-4EC3-B7CA-4632F8A5749C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{673439F6-B8DC-48DA-BEF5-D8E59746A38B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{673439F6-B8DC-48DA-BEF5-D8E59746A38B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{673439F6-B8DC-48DA-BEF5-D8E59746A38B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{673439F6-B8DC-48DA-BEF5-D8E59746A38B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BEDE259-3C3B-4063-BDDB-9C835E167392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BEDE259-3C3B-4063-BDDB-9C835E167392}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BEDE259-3C3B-4063-BDDB-9C835E167392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BEDE259-3C3B-4063-BDDB-9C835E167392}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F9B59E0-B05B-457E-AABD-39B3F527342D}
+	EndGlobalSection
+EndGlobal
