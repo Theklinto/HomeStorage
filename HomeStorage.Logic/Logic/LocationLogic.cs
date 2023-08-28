@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using HomeStorage.DataAccess.AuthenticationModels;
 using HomeStorage.DataAccess.Entities;
+using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
 using HomeStorage.Logic.Models.Location;
+using HomeStorage.Logic.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,31 +18,32 @@ using System.Threading.Tasks;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class LocationLogic
+    public class LocationLogic : LogicBase
     {
-        private readonly HomeStorageDbContext _db;
         private readonly ImageLogic _imageLogic;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IMapper _mapper;
-        public LocationLogic(HomeStorageDbContext dbContext, ImageLogic imageLogic, IMapper mapper, UserManager<IdentityUser> userManager)
+        public LocationLogic(HomeStorageDbContext dbContext, ImageLogic imageLogic, IMapper mapper, UserManager<IdentityUser> userManager,
+            HttpContextService httpContextService) : base(httpContextService, dbContext)
         {
-            _db = dbContext;
             _imageLogic = imageLogic;
             _mapper = mapper;
             _userManager = userManager;
         }
 
-        public async Task<LocationModel> CreateLocationAsync(LocationUpdateModel model, IdentityUser user)
+        public async Task<LocationModel> CreateLocationAsync(LocationUpdateModel model)
         {
             if (model.LocationId.HasValue)
                 throw new Exception("Can't create a location with predefined locationId");
             if (string.IsNullOrWhiteSpace(model.Name))
                 throw new Exception("Can't create a location without a name");
 
+            IdentityUser user = await GetCurrentUser();
+
             //Check for image and create
             Guid? imageId = default;
             if (model.NewImage is not null && model.NewImage.Length > 0)
-                imageId = await _imageLogic.CreateImageAsync(model.NewImage, user);
+                imageId = await _imageLogic.CreateImageAsync(model.NewImage);
 
             Location location = new()
             {
@@ -69,8 +72,10 @@ namespace HomeStorage.Logic.Logic
             return result;
         }
 
-        public async Task<LocationModel?> GetLocationAsync(Guid locationId, IdentityUser user)
+        public async Task<LocationModel?> GetLocationAsync(Guid locationId)
         {
+            IdentityUser user = await GetCurrentUser();
+
             LocationUser? locationUser = await _db.LocationUsers
                 .Include(x => x.Location.Image)
                 .FirstOrDefaultAsync(x => x.LocationId == locationId && x.UserId == user.Id);
@@ -79,8 +84,10 @@ namespace HomeStorage.Logic.Logic
                 _mapper.Map<LocationModel>(locationUser.Location) : null;
         }
 
-        public async Task<List<LocationModel>> GetAllLocationsByUser(IdentityUser user)
+        public async Task<List<LocationModel>> GetAllLocationsByUser(IdentityUser? user = default)
         {
+            user ??= await GetCurrentUser();
+
             List<Location> locations = await _db.LocationUsers
                 .Where(x => x.UserId == user.Id)
                 .Include(x => x.Location.Image)
@@ -90,8 +97,9 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<List<LocationModel>>(locations);
         }
 
-        public async Task<List<LocationListModel>> GetList(IdentityUser user)
+        public async Task<List<LocationListModel>> GetList()
         {
+            IdentityUser user = await GetCurrentUser();
             List<Location> locations = await _db.Locations
                 .Where(x => x.LocationUsers.Any(y => y.UserId == user.Id))
                 .Include(x => x.LocationUsers)
@@ -110,7 +118,7 @@ namespace HomeStorage.Logic.Logic
             return result;
         }
 
-        public async Task<LocationModel?> UpdateLocation(LocationUpdateModel updateModel, IdentityUser user)
+        public async Task<LocationModel?> UpdateLocation(LocationUpdateModel updateModel)
         {
             Location? location = await _db.Locations
                 .Include(x => x.Image)
@@ -122,7 +130,7 @@ namespace HomeStorage.Logic.Logic
             if (location.Image is not null && updateModel.NewImage is not null)
                 await _imageLogic.UpdateImageAsync(location.Image.ImageId, updateModel.NewImage);
             else if (location.Image is null && updateModel.NewImage is not null)
-                location.ImageId = await _imageLogic.CreateImageAsync(updateModel.NewImage, user);
+                location.ImageId = await _imageLogic.CreateImageAsync(updateModel.NewImage);
 
             location.Name = updateModel.Name;
             location.Description = updateModel.Description;
@@ -132,8 +140,10 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<LocationModel>(location);
         }
 
-        public async Task<(LocationModel? model, bool? allowDeletion)> DeleteLocation(Guid locationId, IdentityUser user)
+        public async Task<(LocationModel? model, bool? allowDeletion)> DeleteLocation(Guid locationId)
         {
+            IdentityUser user = await GetCurrentUser();
+
             Location? location = await _db.Locations
                 .Include(x => x.Image)
                 .Include(x => x.LocationUsers)
@@ -157,65 +167,32 @@ namespace HomeStorage.Logic.Logic
             return (_mapper.Map<LocationModel>(location), true);
         }
 
-        public async Task<bool> CheckUserAccess(Location? location, IdentityUser user, EAccess access)
+        public async Task<List<LocationUserModel>?> GetLocationUsersAsync(Guid locationId)
         {
-            //Load locationUsers if not preloaded
-            if (location is null)
-                return false;
+            if (await CheckUserAccess<Location>(locationId, EAccess.LocationAdmin) is false)
+                return null;
 
-            if (location.LocationUsers is null || location.LocationUsers.Any() is false)
-                location.LocationUsers = await _db.LocationUsers
-                    .Where(x => x.LocationId == location.LocationId)
-                    .ToListAsync();
-
-            Func<LocationUser, bool>? selector;
-
-            switch (access)
-            {
-                case EAccess.LocationAdmin:
-                case EAccess.Update:
-                case EAccess.Delete:
-                case EAccess.Create:
-                    selector = (x) => x.UserId == user.Id && (x.IsLocationOwner || x.IsLoactionAdmin);
-                    break;
-
-                default:
-                    selector = (x) => x.UserId == user.Id;
-                    break;
-            };
-
-            bool hasAccess = location.LocationUsers.Any(selector);
-            return hasAccess;
-        }
-
-        public async Task<List<LocationUserModel>?> GetLocationUsersAsync(Guid locationId, IdentityUser user)
-        {
             Location? location = await _db.Locations
-                .Include(x => x.LocationUsers)
-                .ThenInclude(x => x.User)
                 .FirstOrDefaultAsync(x => x.LocationId == locationId);
 
-            bool hasAccess = await CheckUserAccess(location, user, EAccess.LocationAdmin);
-
-            if (location is null || hasAccess is false)
+            if (location is null)
                 return null;
 
             return _mapper.Map<List<LocationUserModel>>(location.LocationUsers);
         }
 
-        public async Task<LocationUserModel?> AddUserToLocation(LocationUserModel model, IdentityUser user)
+        public async Task<LocationUserModel?> AddUserToLocation(LocationUserModel model)
         {
-            Location? location = await _db.Locations
-                .Include(x => x.LocationUsers)
-                .ThenInclude(x => x.User)
-                .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
+            if (await CheckUserAccess<Location>(model.LocationId, EAccess.LocationAdmin) is false)
+                return null;
 
-            bool hasAccess = await CheckUserAccess(location, user, EAccess.LocationAdmin);
+            Location? location = await _db.Locations
+                .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
 
             //Find user by email
             IdentityUser? addedUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
 
-            if (location is null || hasAccess is false || addedUser is null)
+            if (location is null || addedUser is null)
                 return null;
 
             LocationUser locationUser = new()
@@ -231,13 +208,13 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<LocationUserModel>(locationUser);
         }
 
-        public async Task<LocationUserModel?> DeleteUserFromLocation(Guid locationUserId, IdentityUser user)
+        public async Task<LocationUserModel?> DeleteUserFromLocation(Guid locationUserId)
         {
             LocationUser? locationUser = await _db.LocationUsers
                 .Include(x => x.Location)
                 .FirstOrDefaultAsync(x => x.LocationUserId == locationUserId);
 
-            bool hasAccess = await CheckUserAccess(locationUser?.Location, user, EAccess.LocationAdmin);
+            bool hasAccess = await CheckUserAccess<Location>(locationUser?.LocationId, EAccess.LocationAdmin);
 
             if (locationUser is null || hasAccess is false)
                 return null;

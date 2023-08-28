@@ -17,6 +17,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System;
+using HomeStorage.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration config = new ConfigurationBuilder()
@@ -65,6 +66,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<HomeStorageDbContext>(options => options.UseSqlServer(config.GetConnectionString("Default")));
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<HttpContextService>();
 
 #region Logics
 

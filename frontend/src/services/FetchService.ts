@@ -17,13 +17,17 @@ export abstract class FetchService extends BaseService {
                 });
             }
         }
+        //Load paramcollection
         return new Promise<expectedModel>((resolve, reject) => {
-            fetch(FetchService.baseUrl + fetchModel.relativePath, {
-                method: fetchModel.method,
-                mode: "cors",
-                credentials: "include",
-                body: fetchModel.body ? formData : undefined,
-            })
+            fetch(
+                FetchService.baseUrl + fetchModel.relativePath + fetchModel.params.getParamString(),
+                {
+                    method: fetchModel.method,
+                    mode: "cors",
+                    credentials: "include",
+                    body: fetchModel.body ? formData : undefined,
+                }
+            )
                 .then(async (response) => {
                     const responseText = await response.text();
                     if (response.ok && responseText) {
@@ -78,5 +82,38 @@ export class FetchModel {
     method;
     callerFunction;
     body: any;
+    params: ParamCollection = new ParamCollection([]);
     requiresAuth = true;
+}
+
+export class ParamCollection {
+    constructor(params: Param[]) {
+        this.params = params;
+    }
+    params;
+
+    public getParamString() {
+        let paramString = "";
+        if (this.params.length > 0) {
+            paramString = this.params.join("&");
+        }
+        return paramString.length > 0 ? `?${paramString}` : paramString;
+    }
+}
+
+export class Param {
+    constructor(key: string, value: string) {
+        this.key = key;
+        this.value = value;
+    }
+    key;
+    value;
+
+    getKeyValuePair() {
+        if (this.key != "" && this.value != "") {
+            return `${this.key}=${this.value}`;
+        }
+        return "";
+    }
+    public toString = this.getKeyValuePair;
 }

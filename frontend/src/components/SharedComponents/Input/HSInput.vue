@@ -16,9 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { IconService, Icon } from "@/services/IconService";
+import { Icon } from "@/services/IconService";
 import HSButton from "../Controls/HSButton.vue";
-import { BootstrapService, BootstrapType } from "@/services/BootstrapService";
 
 interface Props {
     label?: string;
