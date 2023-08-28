@@ -29,9 +29,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CreateLocation([FromForm] LocationUpdateModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            LocationModel result = await _locationLogic.CreateLocationAsync(model, user);
+            LocationModel result = await _locationLogic.CreateLocationAsync(model);
             return Created(Request.GetEncodedUrl(), Json(result).Value);
         }
 
@@ -41,9 +39,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetLocation([FromRoute] Guid locationId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            LocationModel? model = await _locationLogic.GetLocationAsync(locationId, user);
+            LocationModel? model = await _locationLogic.GetLocationAsync(locationId);
             if (model is null)
                 return NoContent();
 
@@ -55,9 +51,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetAllLocations()
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            IEnumerable<LocationModel> locations = await _locationLogic.GetAllLocationsByUser(user);
+            IEnumerable<LocationModel> locations = await _locationLogic.GetAllLocationsByUser();
             return Ok(Json(locations).Value);
         }
 
@@ -66,9 +60,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetListData()
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            IEnumerable<LocationListModel> locations = await _locationLogic.GetList(user);
+            IEnumerable<LocationListModel> locations = await _locationLogic.GetList();
             return Ok(Json(locations).Value);
         }
         [HttpPut("UpdateLocation")]
@@ -77,9 +69,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateLocation([FromForm]LocationUpdateModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            LocationModel? updatedLocation = await _locationLogic.UpdateLocation(model, user);
+            LocationModel? updatedLocation = await _locationLogic.UpdateLocation(model);
 
             return updatedLocation is null ?
                 BadRequest() :
@@ -92,9 +82,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteLocation([FromRoute] Guid locationId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            (LocationModel? model, bool? allowDeletion) = await _locationLogic.DeleteLocation(locationId, user);
+            (LocationModel? model, bool? allowDeletion) = await _locationLogic.DeleteLocation(locationId);
 
             if (allowDeletion is false)
                 return Unauthorized("The user is not an admin or owner of the location");
@@ -111,9 +99,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetLocationUsers([FromQuery] Guid locationId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            List<LocationUserModel>? locationUsers = await _locationLogic.GetLocationUsersAsync(locationId, user);
+            List<LocationUserModel>? locationUsers = await _locationLogic.GetLocationUsersAsync(locationId);
 
             if(locationUsers is null)   
                 return BadRequest();
@@ -127,9 +113,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddLocationUser([FromForm] LocationUserModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            LocationUserModel? locationUser = await _locationLogic.AddUserToLocation(model, user);
+            LocationUserModel? locationUser = await _locationLogic.AddUserToLocation(model);
 
             if (locationUser is null)
                 return BadRequest();
@@ -143,9 +127,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteLocationUser([FromQuery] Guid locationUserId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            LocationUserModel? locationUser = await _locationLogic.DeleteUserFromLocation(locationUserId, user);
+            LocationUserModel? locationUser = await _locationLogic.DeleteUserFromLocation(locationUserId);
 
             if (locationUser is null)
                 return BadRequest();

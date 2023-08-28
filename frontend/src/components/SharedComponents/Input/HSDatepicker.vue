@@ -13,21 +13,28 @@
 <script setup lang="ts">
 import { Utilities } from "@/Utilities";
 import moment from "moment";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 interface Props {
     label: string;
-    modelValue: string;
+    modelValue?: string;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits(["update:modelValue"]);
 const formattedDate = ref(moment(props.modelValue));
 
+watch(
+    () => props.modelValue,
+    (newDate) => {
+        formattedDate.value = moment(newDate);
+    }
+);
+
 function onChange(event: Event) {
     const element = event.target as HTMLInputElement;
     formattedDate.value = moment(element.value);
-    emit("update:modelValue", formattedDate.value.toISOString());
+    emit("update:modelValue", formattedDate.value.format(Utilities.dateFormat));
 }
 </script>
 

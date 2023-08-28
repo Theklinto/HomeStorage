@@ -10,23 +10,19 @@ using Microsoft.AspNetCore.Identity;
 using HomeStorage.Logic.DbContext;
 using Microsoft.EntityFrameworkCore;
 using HomeStorage.DataAccess.Entities;
+using HomeStorage.Logic.Abstracts;
+using HomeStorage.Logic.Services;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class ImageLogic
+    public class ImageLogic : LogicBase
     {
-        private readonly IConfiguration _config;
-        private readonly HomeStorageDbContext _db;
+        public ImageLogic(HomeStorageDbContext dbContext, HttpContextService httpContextService)
+            : base(httpContextService, dbContext) { }
 
-        public ImageLogic(IConfiguration config, HomeStorageDbContext dbContext)
+        public async Task<Guid> CreateImageAsync(IFormFile file)
         {
-            _config = config;
-            _db = dbContext;
-        }
-
-        public async Task<Guid> CreateImageAsync(IFormFile file, IdentityUser user)
-        {
-            using MemoryStream memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new();
             await file.CopyToAsync(memoryStream);
             byte[] imageBytes = memoryStream.ToArray();
 
@@ -35,7 +31,7 @@ namespace HomeStorage.Logic.Logic
 
             Image? image = new()
             {
-                User = user,
+                User = await GetCurrentUser(),
                 ImageBytes = imageBytes,
             };
 

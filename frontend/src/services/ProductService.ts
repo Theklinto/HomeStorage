@@ -1,5 +1,5 @@
 import { ProductModel } from "@/models/Product/ProductModel";
-import { FetchModel, FetchService } from "./FetchService";
+import { FetchModel, FetchService, ParamCollection, Param } from "./FetchService";
 import { ProductUpdateModel } from "@/models/Product/ProductUpdateModel";
 
 export class ProductService extends FetchService {
@@ -7,25 +7,41 @@ export class ProductService extends FetchService {
         super(ProductService.name);
     }
 
-    async fetchProductsByCategory(categoryId: string): Promise<ProductModel[]> {
+    async fetchProductsByCategory(
+        categoryId: string,
+        searchExpression = ""
+    ): Promise<ProductModel[]> {
         return new Promise<ProductModel[]>((resolve) => {
             this.fetchData<ProductModel[]>(
                 new FetchModel(
                     this.fetchProductsByCategory.name,
                     `/product/list?categoryId=${categoryId}`,
-                    "GET"
+                    "GET",
+                    {
+                        params: new ParamCollection([
+                            new Param("searchExpression", searchExpression),
+                        ]),
+                    }
                 )
             ).then((fetchedModel) => resolve(fetchedModel));
         });
     }
 
-    async fetchProductsByLocation(locationId: string): Promise<ProductModel[]> {
+    async fetchProductsByLocation(
+        locationId: string,
+        searchExpression = ""
+    ): Promise<ProductModel[]> {
         return new Promise<ProductModel[]>((resolve) => {
             this.fetchData<ProductModel[]>(
                 new FetchModel(
                     this.fetchProductsByLocation.name,
                     `/product/list?locationId=${locationId}`,
-                    "GET"
+                    "GET",
+                    {
+                        params: new ParamCollection([
+                            new Param("searchExpression", searchExpression),
+                        ]),
+                    }
                 )
             ).then((fetchedModel) => resolve(fetchedModel));
         });

@@ -1,39 +1,33 @@
 ﻿using AutoMapper;
 using HomeStorage.DataAccess.Entities;
+using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
 using HomeStorage.Logic.Models.Category;
+using HomeStorage.Logic.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class CategoryLogic
+    public class CategoryLogic : LogicBase
     {
-        private readonly HomeStorageDbContext _db;
         private readonly IMapper _mapper;
         private readonly ImageLogic _imageLogic;
-        private readonly LocationLogic _locationLogic;
-        public CategoryLogic(HomeStorageDbContext db, IMapper mapper, ImageLogic imageLogic, LocationLogic locationLogic)
+
+        public CategoryLogic(HomeStorageDbContext db, IMapper mapper, ImageLogic imageLogic, LocationLogic locationLogic,
+            HttpContextService httpContextService) : base(httpContextService, db)
         {
-            _db = db;
             _mapper = mapper;
             _imageLogic = imageLogic;
-            _locationLogic = locationLogic;
         }
 
-        public async Task<CategoryModel?> GetCategory(Guid categoryId, IdentityUser user)
+        public async Task<CategoryModel?> GetCategory(Guid categoryId)
         {
             Category? category = await _db.Categories
-                .Include(x => x.Location)
                 .FirstOrDefaultAsync(x => x.CategoryId == categoryId);
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(category?.Location, user, EAccess.Read);
+            bool hasAccess = await CheckUserAccess<Category>(categoryId, EAccess.Read);
 
             if (category is null || hasAccess is false)
                 return null;
@@ -41,26 +35,26 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task<List<CategoryModel>?> GetCategoriesForLocation(Guid locationId, IdentityUser user)
+        public async Task<List<CategoryModel>?> GetCategoriesForLocation(Guid locationId)
         {
-            Location? location = await _db.Locations
-                .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.LocationId == locationId);
+            List<Category> categories = await _db.Categories
+                .Where(x => x.LocationId == locationId)
+                .ToListAsync();
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(location, user, EAccess.Read);
+            bool hasAccess = await CheckUserAccess<Location>(locationId, EAccess.Read);
 
-            if (location is null || hasAccess is false)
+            if (hasAccess is false)
                 return null;
 
-            return _mapper.Map<List<CategoryModel>>(location.Categories);
+            return _mapper.Map<List<CategoryModel>>(categories);
         }
 
-        public async Task<CategoryModel?> CreateCategory(CategoryUpdateModel model, IdentityUser user)
+        public async Task<CategoryModel?> CreateCategory(CategoryUpdateModel model)
         {
             Location? location = await _db.Locations
                 .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(location, user, EAccess.Create);
+            bool hasAccess = await CheckUserAccess<Location>(model.LocationId, EAccess.Create);
 
             if (location is null || hasAccess is false)
                 return null;
@@ -72,7 +66,7 @@ namespace HomeStorage.Logic.Logic
             };
 
             if (model.NewImage is not null)
-                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage, user);
+                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage);
 
             location.Categories.Add(category);
 
@@ -81,13 +75,12 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task<CategoryModel?> UpdateCategory(CategoryUpdateModel model, IdentityUser user)
+        public async Task<CategoryModel?> UpdateCategory(CategoryUpdateModel model)
         {
             Category? category = await _db.Categories
-                .Include(x => x.Location)
                 .FirstOrDefaultAsync(x => x.CategoryId == model.CategoryId);
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(category?.Location, user, EAccess.Update);
+            bool hasAccess = await CheckUserAccess<Category>(model.CategoryId, EAccess.Update);
 
             if (category is null || hasAccess is false)
                 return null;
@@ -95,7 +88,7 @@ namespace HomeStorage.Logic.Logic
             if (model.NewImage is not null && category.Image is not null)
                 category.Image = await _imageLogic.UpdateImageAsync(category.ImageId.GetValueOrDefault(), model.NewImage);
             else if (model.NewImage is not null)
-                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage, user);
+                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage);
 
             category.Name = model.Name;
 
@@ -104,15 +97,15 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task<CategoryModel?> DeleteCategory(Guid categoryId, IdentityUser user)
+        public async Task<CategoryModel?> DeleteCategory(Guid categoryId)
         {
+            if (await CheckUserAccess<Category>(categoryId, EAccess.Delete) is false)
+                return null;
+
             Category? category = await _db.Categories
-                .Include(x => x.Location)
                 .FirstOrDefaultAsync(x => x.CategoryId == categoryId);
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(category?.Location, user, EAccess.Delete);
-
-            if (category is null || hasAccess is false)
+            if (category is null)
                 return null;
 
             if (category.Image is not null)
@@ -123,18 +116,18 @@ namespace HomeStorage.Logic.Logic
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task<List<CategoryNotationModel>?> GetCategoryAsNocationForLocationAsync(Guid locationId, IdentityUser user)
+        public async Task<List<CategoryNotationModel>?> GetCategoriesAsNotationForLocationAsync(Guid locationId)
         {
-            Location? location = await _db.Locations
-                .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.LocationId == locationId);
+            bool hasAccess = await CheckUserAccess<Location>(locationId, EAccess.Read);
 
-            bool hasAccess = await _locationLogic.CheckUserAccess(location, user, EAccess.Read);
+            List<Category> categories = await _db.Categories
+                .Where(x => x.LocationId == locationId)
+                .ToListAsync();
 
-            if(location is null || hasAccess is false)
+            if (hasAccess is false)
                 return null;
 
-            return _mapper.Map<List<CategoryNotationModel>>(location.Categories);
+            return _mapper.Map<List<CategoryNotationModel>>(categories);
         }
     }
 }

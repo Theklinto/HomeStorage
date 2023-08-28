@@ -13,13 +13,11 @@ namespace HomeStorage.API.Controllers
     public class ProductController : Controller
     {
         private readonly ProductLogic _productLogic;
-        private readonly UserManager<IdentityUser> _userManager;
 
 
-        public ProductController(ProductLogic productLogic, UserManager<IdentityUser> userManager)
+        public ProductController(ProductLogic productLogic)
         {
             _productLogic = productLogic;
-            _userManager = userManager;
         }
 
         [HttpGet]
@@ -27,19 +25,18 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetProductsByLocation([FromQuery] Guid? locationId, [FromQuery] Guid? categoryId)
+        public async Task<IActionResult> GetProducts([FromQuery] Guid? locationId, [FromQuery] Guid? categoryId,
+            [FromQuery] string searchExpression = "")
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
             if (categoryId is null && locationId is null)
                 return BadRequest();
 
             List<ProductModel>? products = null;
 
             if (locationId is not null)
-                products = await _productLogic.GetProductsFromLocationAsync(locationId.GetValueOrDefault(), user);
+                products = await _productLogic.GetProductsFromLocationAsync(locationId.GetValueOrDefault(), searchExpression);
             else if (categoryId is not null)
-                products = await _productLogic.GetProductFromCategoryAsync(categoryId.GetValueOrDefault(), user);
+                products = await _productLogic.GetProductFromCategoryAsync(categoryId.GetValueOrDefault(), searchExpression);
 
             if (products is null)
                 return BadRequest();
@@ -53,9 +50,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetProduct([FromQuery] Guid productId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            ProductModel? product = await _productLogic.GetProductAsync(productId, user);
+            ProductModel? product = await _productLogic.GetProductAsync(productId);
 
             if (product is null)
                 return BadRequest();
@@ -69,8 +64,6 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CreateProduct([FromForm] JsonWithFileModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
             ProductUpdateModel? updateModel = JsonSerializer
                 .Deserialize<ProductUpdateModel?>(model.Json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             if (updateModel is null)
@@ -78,7 +71,7 @@ namespace HomeStorage.API.Controllers
 
             updateModel.NewImage = model.File;
 
-            ProductModel? product = await _productLogic.CreateProductAsync(updateModel, user);
+            ProductModel? product = await _productLogic.CreateProductAsync(updateModel);
 
             if (product is null)
                 return BadRequest();
@@ -92,8 +85,6 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateProduct([FromForm] JsonWithFileModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
             ProductUpdateModel? updateModel = JsonSerializer
                 .Deserialize<ProductUpdateModel?>(model.Json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             if (updateModel is null)
@@ -101,7 +92,7 @@ namespace HomeStorage.API.Controllers
 
             updateModel.NewImage = model.File;
 
-            ProductModel? product = await _productLogic.UpdateProductAsync(updateModel, user);
+            ProductModel? product = await _productLogic.UpdateProductAsync(updateModel);
 
             if (product is null)
                 return BadRequest();
@@ -115,9 +106,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteProduct([FromQuery] Guid productId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            ProductModel? product = await _productLogic.DeleteProductAsync(productId, user);
+            ProductModel? product = await _productLogic.DeleteProductAsync(productId);
 
             if (product is null)
                 return BadRequest();
