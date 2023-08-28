@@ -1,7 +1,29 @@
 <template>
     <div class="container-fuid" style="overflow-x: hidden">
+        <div v-if="enableFilters" :class="'searchbar'" class="d-flex">
+            <HSInput
+                :class="'search'"
+                :placeholder="'Search'"
+                v-model="searchExpression"
+                :show-clear-button="true"
+            />
+            <div class="filter">
+                <HSButton
+                    :icon="Icon.Filter"
+                    :type="BootstrapType.Secondary"
+                    :disable-margin="true"
+                />
+            </div>
+        </div>
+        <HSInput
+            v-else
+            class="searchbar"
+            :placeholder="'Search'"
+            v-model="searchExpression"
+            :show-clear-button="true"
+        />
         <div
-            v-for="card in cardData"
+            v-for="card in filteredCards"
             :key="card.Id"
             v-touch:hold="
                 () => {
@@ -17,8 +39,20 @@
                         </div>
                         <div class="col-8">
                             <h5 class="card-title">{{ card.Title }}</h5>
+                            <div
+                                class="card-subtitle"
+                                :class="BootstrapService.GetTextColor((card as ProductCardData).getExpirationTimeframe())"
+                                v-if="(card instanceof ProductCardData) && (card as ProductCardData).getExpirationDateDisplay() != ''"
+                            >
+                                <span>Expiration date: </span>
+                                <span>{{
+                                    (card as ProductCardData).getExpirationDateDisplay()
+                                }}</span>
+                            </div>
                             <div>
-                                <h6 v-if="card.count" class="d-inline">{{ card.count }} x</h6>
+                                <h6 v-if="card.count" class="d-inline" style="padding-right: 0.5em">
+                                    {{ card.count }} x
+                                </h6>
                                 <h6 class="card-subtitle d-inline">
                                     {{ card.Description }}
                                 </h6>
@@ -69,28 +103,50 @@
 </template>
 
 <script setup lang="ts">
-import { CardData, SwipeComponent } from "@/models/SharedModels/CardData";
-import { Ref, ref, watch } from "vue";
+import { CardData, SwipeComponent, ProductCardData } from "@/models/SharedModels/CardData";
+import { Ref, computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import HSIncrementInput from "./Input/HSIncrementInput.vue";
 import HSButton from "./Controls/HSButton.vue";
-import { BootstrapType } from "@/services/BootstrapService";
+import { BootstrapService, BootstrapType } from "@/services/BootstrapService";
 import { Icon } from "@/services/IconService";
 import HSSpacer from "./Visual/HSSpacer.vue";
 import { NavigationService } from "@/services/NavigationService";
+import HSInput from "./Input/HSInput.vue";
 
 interface Props {
     cards: CardData[];
     enableSwipe: boolean;
     swipeComponent?: SwipeComponent;
+    enableSearch?: boolean;
+    enableFilters?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
     swipeComponent: SwipeComponent.Button,
+    enableSearch: true,
+    enableFilters: false,
 });
 const emit = defineEmits(["update:count"]);
 const cardData: Ref<CardData[]> = ref([]);
 const router = useRouter();
 const countMap = ref(new Map<string, number>([]));
+const searchExpression = ref("");
+
+const filteredCards = computed(() => {
+    if (searchExpression.value != "" && typeof searchExpression.value === "string") {
+        const searchText = searchExpression.value.toLocaleLowerCase();
+        return cardData.value.filter((card) => {
+            if (
+                card.Description.toLocaleLowerCase().includes(searchText) ||
+                card.Title.toLocaleLowerCase().includes(searchText)
+            ) {
+                return card;
+            }
+        });
+    } else {
+        return cardData.value;
+    }
+});
 
 watch(
     () => props.cards,
@@ -132,6 +188,18 @@ img {
 }
 .row {
     padding: 10px;
+}
+.searchbar {
+    margin: 10px;
+    position: relative;
+}
+.searchbar .search {
+    width: 80%;
+}
+.searchbar .filter {
+    width: 15%;
+    position: absolute;
+    right: 0;
 }
 .disabled-overlay {
     background-color: black;

@@ -6,6 +6,7 @@ export enum Icon {
     Save,
     Cog,
     Users,
+    Filter,
 }
 
 export class IconService {

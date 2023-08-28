@@ -5,12 +5,14 @@
         :enable-swipe="true"
         :swipe-component="SwipeComponent.Incremental"
         @update:count="updateCount"
+        :enable-filters="false"
+        :enable-search="true"
     ></VerticalCards>
 </template>
 
 <script setup lang="ts">
 import { ProductModel } from "@/models/Product/ProductModel";
-import { CardData, SwipeComponent } from "@/models/SharedModels/CardData";
+import { ProductCardData, SwipeComponent } from "@/models/SharedModels/CardData";
 import { ImageService } from "@/services/ImageService";
 import { ProductService } from "@/services/ProductService";
 import { Ref, computed, onMounted, ref } from "vue";
@@ -20,10 +22,11 @@ import { NavigationService } from "@/services/NavigationService";
 import { ProductsAddNavbar } from "@/navbarDefinitions";
 import { ProductUpdateModel } from "@/models/Product/ProductUpdateModel";
 import HSHeader from "../SharedComponents/Visual/HSHeader.vue";
+import moment from "moment";
 
 interface Props {
     locationId?: string;
-    displayHeader: boolean;
+    displayHeader?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,44 +35,54 @@ const props = withDefaults(defineProps<Props>(), {
 const categoryId = ref("");
 const locationId = ref("");
 const products: Ref<ProductModel[]> = ref([]);
-const productCards = computed<CardData[]>(() => {
-    const cardData: CardData[] = products.value.map((product) => {
-        return new CardData({
+const productCards = computed<ProductCardData[]>(() => {
+    const cardData: ProductCardData[] = products.value.map((product) => {
+        return new ProductCardData({
             Id: product.productId,
             Title: product.name,
             Description: product.description,
             route: { name: "products.edit", params: { productId: product.productId } },
             ImageUrl: ImageService.getImageById(product.imageId),
             count: product.amount,
+            expirationDate: product.expirationDate,
         });
     });
     return cardData;
 });
 const productService = new ProductService();
 const route = useRoute();
+const fetchMode: Ref<"Category" | "Location" | ""> = ref("");
 
 onMounted(async () => {
     if (route.params.categoryId && typeof route.params.categoryId == "string") {
         categoryId.value = route.params.categoryId;
+        fetchMode.value = "Category";
     }
     if (props.locationId) {
         locationId.value = props.locationId;
     }
     if (route.params.locationId && typeof route.params.locationId == "string") {
         locationId.value = route.params.locationId;
+        if (fetchMode.value == "") {
+            fetchMode.value = "Location";
+        }
     }
 
-    if (categoryId.value) {
-        products.value = await productService.fetchProductsByCategory(categoryId.value);
-    } else if (locationId.value) {
-        products.value = await productService.fetchProductsByLocation(locationId.value);
-    }
+    await fetchProducts();
 
     NavigationService.navigationComponent.value = new ProductsAddNavbar(
         locationId.value,
         categoryId.value
     );
 });
+
+async function fetchProducts() {
+    if (fetchMode.value == "Category") {
+        products.value = await productService.fetchProductsByCategory(categoryId.value);
+    } else if (fetchMode.value == "Location") {
+        products.value = await productService.fetchProductsByLocation(locationId.value);
+    }
+}
 
 async function updateCount(productId: string, count: number) {
     const updateModel = new ProductUpdateModel();

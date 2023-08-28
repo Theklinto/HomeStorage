@@ -11,11 +11,9 @@ namespace HomeStorage.API.Controllers
     [ApiController]
     public class CategoryController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly CategoryLogic _categoryLogic;
-        public CategoryController(UserManager<IdentityUser> userManager, CategoryLogic categoryLogic)
+        public CategoryController(CategoryLogic categoryLogic)
         {
-            _userManager = userManager;
             _categoryLogic = categoryLogic;
         }
 
@@ -26,9 +24,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCategoriesForLocation([FromRoute] Guid locationId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            List<CategoryModel>? categories = await _categoryLogic.GetCategoriesForLocation(locationId, user);
+            List<CategoryModel>? categories = await _categoryLogic.GetCategoriesForLocation(locationId);
 
             if (categories is null)
                 return BadRequest();
@@ -43,9 +39,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCategory([FromRoute] Guid categoryId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            CategoryModel? category = await _categoryLogic.GetCategory(categoryId, user);
+            CategoryModel? category = await _categoryLogic.GetCategory(categoryId);
 
             if (category is null)
                 return BadRequest();
@@ -60,9 +54,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCategory([FromForm] CategoryUpdateModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            CategoryModel? category = await _categoryLogic.CreateCategory(model, user);
+            CategoryModel? category = await _categoryLogic.CreateCategory(model);
 
             if (category is null)
                 return BadRequest();
@@ -77,9 +69,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCategory([FromForm] CategoryUpdateModel model)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            CategoryModel? category = await _categoryLogic.UpdateCategory(model, user);
+            CategoryModel? category = await _categoryLogic.UpdateCategory(model);
 
             if (category is null)
                 return BadRequest();
@@ -94,9 +84,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCategory(Guid categoryId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
-            CategoryModel? category = await _categoryLogic.DeleteCategory(categoryId, user);
+            CategoryModel? category = await _categoryLogic.DeleteCategory(categoryId);
 
             if (category is null)
                 return BadRequest();
@@ -111,10 +99,8 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCategoriesLookup([FromQuery]Guid locationId)
         {
-            IdentityUser user = await this.GetCurrentUser(_userManager);
-
             List<CategoryNotationModel>? category = await _categoryLogic
-                .GetCategoryAsNocationForLocationAsync(locationId, user);
+                .GetCategoriesAsNotationForLocationAsync(locationId);
 
             if (category is null)
                 return BadRequest();
