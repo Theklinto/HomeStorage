@@ -1,4 +1,6 @@
-﻿using LinqKit;
+﻿using IQueryableFilter.Attributes;
+using IQueryableFilter.Enums;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ namespace HomeStorage.DataAccess.Entities
     public partial class Product
     {
         public Guid ProductId { get; set; }
+        [QueryFilterable(EComparisonType.Like, EComparisonType.Equal)]
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         [ForeignKey(nameof(Image))]

@@ -4,6 +4,8 @@ using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
 using HomeStorage.Logic.Models.Product;
+using IQueryableFilter.Models;
+using IQueryableFilter.Enums;
 using HomeStorage.Logic.Services;
 using LinqKit;
 using LinqKit.Core;
@@ -44,10 +46,16 @@ namespace HomeStorage.Logic.Logic
             if (await CheckUserAccess<Location>(locationId, Enums.EAccess.Read) is false)
                 return null;
 
+            QueryFilter filter = new()
+            {
+                ComparisonType = EComparisonType.Like,
+                PropertyNames = new() { nameof(Product.Name) },
+                Search = "majs",
+            };
+
             List<Product> products = await _db.Locations
                 .Where(x => x.LocationId == locationId)
                 .SelectMany(x => x.Products)
-                .Where(Product.ContainsSearchString(searchExpression))
                 .ToListAsync();
 
             return _mapper.Map<List<ProductModel>>(products);

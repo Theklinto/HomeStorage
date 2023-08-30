@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HomeStorage.DataAccess\HomeStorage.DataAccess.csproj" />
+    <ProjectReference Include="..\IQueryableFilter\IQueryableFilter.csproj" />
   </ItemGroup>
 
 </Project>
