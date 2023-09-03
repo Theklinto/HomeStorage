@@ -4,12 +4,13 @@ using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
 using HomeStorage.Logic.Models.Product;
-using IQueryableFilter.Models;
-using IQueryableFilter.Enums;
+using IQueryableFilter;
 using HomeStorage.Logic.Services;
 using LinqKit;
 using LinqKit.Core;
 using Microsoft.EntityFrameworkCore;
+using IQueryableFilter.Models;
+using IQueryableFilter.Enums;
 
 namespace HomeStorage.Logic.Logic
 {
@@ -43,15 +44,8 @@ namespace HomeStorage.Logic.Logic
 
         public async Task<List<ProductModel>?> GetProductsFromLocationAsync(Guid locationId, string searchExpression)
         {
-            if (await CheckUserAccess<Location>(locationId, Enums.EAccess.Read) is false)
+            if (await CheckUserAccess<Location>(locationId, EAccess.Read) is false)
                 return null;
-
-            QueryFilter filter = new()
-            {
-                ComparisonType = EComparisonType.Like,
-                PropertyNames = new() { nameof(Product.Name) },
-                Search = "majs",
-            };
 
             List<Product> products = await _db.Locations
                 .Where(x => x.LocationId == locationId)

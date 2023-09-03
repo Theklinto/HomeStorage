@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="IQueryableFilter" Version="1.0.0" />
     <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="7.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.5" />
@@ -21,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HomeStorage.DataAccess\HomeStorage.DataAccess.csproj" />
-    <ProjectReference Include="..\IQueryableFilter\IQueryableFilter.csproj" />
   </ItemGroup>
 
 </Project>
