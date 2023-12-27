@@ -1,5 +1,4 @@
 using HomeStorage.Logic.Logic;
-using HomeStorage.Logic.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using HomeStorage.Logic.DbContext;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using AutoMapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.Net.Http.Headers;
@@ -65,7 +63,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddDbContext<HomeStorageDbContext>(options => options.UseSqlServer(config.GetConnectionString("Default")));
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<HttpContextService>();
 

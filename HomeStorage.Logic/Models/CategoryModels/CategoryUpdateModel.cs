@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HomeStorage.Logic.Models.Product
+namespace HomeStorage.Logic.Models.CategoryModels
 {
-    public class ProductUpdateModel : ProductModel
+    public class CategoryUpdateModel : CategoryModel
     {
-        [JsonIgnore]
         public IFormFile? NewImage { get; set; }
     }
 }

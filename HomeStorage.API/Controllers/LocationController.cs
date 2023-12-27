@@ -1,6 +1,5 @@
 ﻿using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Logic;
-using HomeStorage.Logic.Models.Location;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using HomeStorage.Logic.Models.LocationModels;
 
 namespace HomeStorage.API.Controllers
 {

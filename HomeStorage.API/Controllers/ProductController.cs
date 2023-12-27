@@ -1,6 +1,6 @@
 ﻿using HomeStorage.Logic.Logic;
 using HomeStorage.Logic.Models;
-using HomeStorage.Logic.Models.Product;
+using HomeStorage.Logic.Models.ProductModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

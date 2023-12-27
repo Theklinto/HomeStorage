@@ -1,20 +1,11 @@
-﻿using AutoMapper;
-using HomeStorage.DataAccess.AuthenticationModels;
-using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
-using HomeStorage.Logic.Models.Location;
+using HomeStorage.Logic.Models.LocationModels;
 using HomeStorage.Logic.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HomeStorage.Logic.Logic
 {
@@ -22,12 +13,10 @@ namespace HomeStorage.Logic.Logic
     {
         private readonly ImageLogic _imageLogic;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IMapper _mapper;
-        public LocationLogic(HomeStorageDbContext dbContext, ImageLogic imageLogic, IMapper mapper, UserManager<IdentityUser> userManager,
+        public LocationLogic(HomeStorageDbContext dbContext, ImageLogic imageLogic, UserManager<IdentityUser> userManager,
             HttpContextService httpContextService) : base(httpContextService, dbContext)
         {
             _imageLogic = imageLogic;
-            _mapper = mapper;
             _userManager = userManager;
         }
 
@@ -66,10 +55,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.Entry(location).ReloadAsync();
 
-            //Create model
-            LocationModel result = _mapper.Map<LocationModel>(location);
-
-            return result;
+            return DTOService.AsDTO<LocationModel, Location>(location);
         }
 
         public async Task<LocationModel?> GetLocationAsync(Guid locationId)
@@ -81,7 +67,7 @@ namespace HomeStorage.Logic.Logic
                 .FirstOrDefaultAsync(x => x.LocationId == locationId && x.UserId == user.Id);
 
             return locationUser is not null ?
-                _mapper.Map<LocationModel>(locationUser.Location) : null;
+                DTOService.AsDTO<LocationModel, Location>(locationUser.Location) : null;
         }
 
         public async Task<List<LocationModel>> GetAllLocationsByUser(IdentityUser? user = default)
@@ -94,7 +80,9 @@ namespace HomeStorage.Logic.Logic
                 .Select(x => x.Location)
                 .ToListAsync();
 
-            return _mapper.Map<List<LocationModel>>(locations);
+            return locations
+                .Select(DTOService.AsDTO<LocationModel, Location>)
+                .ToList();
         }
 
         public async Task<List<LocationListModel>> GetList()
@@ -106,7 +94,10 @@ namespace HomeStorage.Logic.Logic
                 .Include(x => x.Image)
                 .ToListAsync();
 
-            List<LocationListModel> result = _mapper.Map<List<LocationListModel>>(locations);
+            List<LocationListModel> result = locations
+                .Select(DTOService.AsDTO<LocationListModel, Location>)
+                .ToList();
+
             result.ForEach(location =>
             {
                 location.AllowUserManagment = locations
@@ -137,7 +128,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<LocationModel>(location);
+            return DTOService.AsDTO<LocationModel, Location>(location);
         }
 
         public async Task<(LocationModel? model, bool? allowDeletion)> DeleteLocation(Guid locationId)
@@ -164,7 +155,7 @@ namespace HomeStorage.Logic.Logic
             _db.Locations.Remove(location);
 
             await _db.SaveChangesAsync();
-            return (_mapper.Map<LocationModel>(location), true);
+            return (DTOService.AsDTO<LocationModel, Location>(location), true);
         }
 
         public async Task<List<LocationUserModel>?> GetLocationUsersAsync(Guid locationId)
@@ -178,7 +169,9 @@ namespace HomeStorage.Logic.Logic
             if (location is null)
                 return null;
 
-            return _mapper.Map<List<LocationUserModel>>(location.LocationUsers);
+            return location.LocationUsers
+                .Select(DTOService.AsDTO<LocationUserModel, LocationUser>)
+                .ToList();
         }
 
         public async Task<LocationUserModel?> AddUserToLocation(LocationUserModel model)
@@ -205,7 +198,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<LocationUserModel>(locationUser);
+            return DTOService.AsDTO<LocationUserModel, LocationUser>(locationUser);
         }
 
         public async Task<LocationUserModel?> DeleteUserFromLocation(Guid locationUserId)
@@ -222,7 +215,7 @@ namespace HomeStorage.Logic.Logic
             _db.Remove(locationUser);
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<LocationUserModel?>(locationUser);
+            return DTOService.AsDTO<LocationUserModel, LocationUser>(locationUser);
         }
     }
 }

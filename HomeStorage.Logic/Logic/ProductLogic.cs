@@ -1,16 +1,10 @@
-﻿using AutoMapper;
-using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
-using HomeStorage.Logic.Models.Product;
-using IQueryableFilter;
+using HomeStorage.Logic.Models.ProductModels;
 using HomeStorage.Logic.Services;
-using LinqKit;
-using LinqKit.Core;
 using Microsoft.EntityFrameworkCore;
-using IQueryableFilter.Models;
-using IQueryableFilter.Enums;
 
 namespace HomeStorage.Logic.Logic
 {
@@ -18,11 +12,9 @@ namespace HomeStorage.Logic.Logic
     {
         private readonly ImageLogic _imageLogic;
         private readonly LocationLogic _locationLogic;
-        private readonly IMapper _mapper;
-        public ProductLogic(HomeStorageDbContext db, IMapper mapper, LocationLogic locationLogic, ImageLogic imageLogic, HttpContextService contextService)
+        public ProductLogic(HomeStorageDbContext db, LocationLogic locationLogic, ImageLogic imageLogic, HttpContextService contextService)
             : base(contextService, db)
         {
-            _mapper = mapper;
             _locationLogic = locationLogic;
             _imageLogic = imageLogic;
         }
@@ -39,7 +31,7 @@ namespace HomeStorage.Logic.Logic
             if (product is null)
                 return null;
 
-            return _mapper.Map<ProductModel>(product);
+            return DTOService.AsDTO<ProductModel, Product>(product);
         }
 
         public async Task<List<ProductModel>?> GetProductsFromLocationAsync(Guid locationId, string searchExpression)
@@ -52,7 +44,9 @@ namespace HomeStorage.Logic.Logic
                 .SelectMany(x => x.Products)
                 .ToListAsync();
 
-            return _mapper.Map<List<ProductModel>>(products);
+            return products
+                .Select(DTOService.AsDTO<ProductModel, Product>)
+                .ToList();
         }
 
         public async Task<List<ProductModel>?> GetProductFromCategoryAsync(Guid categoryId, string searchExpression)
@@ -66,7 +60,9 @@ namespace HomeStorage.Logic.Logic
                 .Where(Product.ContainsSearchString(searchExpression))
                 .ToListAsync();
 
-            return _mapper.Map<List<ProductModel>>(products);
+            return products
+                .Select(DTOService.AsDTO<ProductModel, Product>)
+                .ToList();
         }
 
         public async Task<ProductModel?> CreateProductAsync(ProductUpdateModel model)
@@ -103,7 +99,7 @@ namespace HomeStorage.Logic.Logic
             await _db.Products.AddAsync(product);
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<ProductModel>(product);
+            return DTOService.AsDTO<ProductModel, Product>(product);
         }
 
         public async Task<ProductModel?> UpdateProductAsync(ProductUpdateModel model)
@@ -140,7 +136,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<ProductModel>(product);
+            return DTOService.AsDTO<ProductModel, Product>(product);
         }
 
         public async Task<ProductModel?> DeleteProductAsync(Guid productId)
@@ -158,7 +154,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<ProductModel>(product);
+            return DTOService.AsDTO<ProductModel, Product>(product);
         }
 
         public async Task<bool> UpdateProductAmount(Guid productId, double newAmount)
