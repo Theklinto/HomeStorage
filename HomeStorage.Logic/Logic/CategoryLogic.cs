@@ -1,24 +1,20 @@
-﻿using AutoMapper;
-using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
-using HomeStorage.Logic.Models.Category;
+using HomeStorage.Logic.Models.CategoryModels;
 using HomeStorage.Logic.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
     public class CategoryLogic : LogicBase
     {
-        private readonly IMapper _mapper;
         private readonly ImageLogic _imageLogic;
 
-        public CategoryLogic(HomeStorageDbContext db, IMapper mapper, ImageLogic imageLogic, LocationLogic locationLogic,
+        public CategoryLogic(HomeStorageDbContext db, ImageLogic imageLogic, LocationLogic locationLogic,
             HttpContextService httpContextService) : base(httpContextService, db)
         {
-            _mapper = mapper;
             _imageLogic = imageLogic;
         }
 
@@ -32,7 +28,7 @@ namespace HomeStorage.Logic.Logic
             if (category is null || hasAccess is false)
                 return null;
 
-            return _mapper.Map<CategoryModel>(category);
+            return DTOService.AsDTO<CategoryModel, Category>(category);
         }
 
         public async Task<List<CategoryModel>?> GetCategoriesForLocation(Guid locationId)
@@ -46,7 +42,9 @@ namespace HomeStorage.Logic.Logic
             if (hasAccess is false)
                 return null;
 
-            return _mapper.Map<List<CategoryModel>>(categories);
+            return categories
+                .Select(DTOService.AsDTO<CategoryModel, Category>)
+                .ToList();
         }
 
         public async Task<CategoryModel?> CreateCategory(CategoryUpdateModel model)
@@ -72,7 +70,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<CategoryModel>(category);
+            return DTOService.AsDTO<CategoryModel, Category>(category);
         }
 
         public async Task<CategoryModel?> UpdateCategory(CategoryUpdateModel model)
@@ -94,7 +92,7 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<CategoryModel>(category);
+            return DTOService.AsDTO<CategoryModel, Category>(category);
         }
 
         public async Task<CategoryModel?> DeleteCategory(Guid categoryId)
@@ -113,7 +111,7 @@ namespace HomeStorage.Logic.Logic
             _db.Categories.Remove(category);
             await _db.SaveChangesAsync();
 
-            return _mapper.Map<CategoryModel>(category);
+            return DTOService.AsDTO<CategoryModel, Category>(category);
         }
 
         public async Task<List<CategoryNotationModel>?> GetCategoriesAsNotationForLocationAsync(Guid locationId)
@@ -127,7 +125,9 @@ namespace HomeStorage.Logic.Logic
             if (hasAccess is false)
                 return null;
 
-            return _mapper.Map<List<CategoryNotationModel>>(categories);
+            return categories
+                .Select(DTOService.AsDTO<CategoryNotationModel, Category>)
+                .ToList();
         }
     }
 }
