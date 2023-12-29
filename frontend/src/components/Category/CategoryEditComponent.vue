@@ -96,6 +96,7 @@ async function updateCategory() {
     isLoading.value = false;
     if (updated) {
         router.back();
+        return;
     }
     activeModalData.value = new ModalData(
         "Category not updated",
