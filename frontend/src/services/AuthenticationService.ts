@@ -1,8 +1,9 @@
 import { LoginModel } from "@/models/Authentication/LoginModel";
-import { BaseService, ResponseModel } from "./BaseService";
+import { BaseService, HttpStatus, ResponseModel } from "./BaseService";
 import { useRouter } from "vue-router";
 import { FetchModel, FetchService } from "./FetchService";
 import { RegisterModel } from "@/models/Authentication/RegisterModel";
+import { TokenModel } from "@/models/Authentication/TokenModel";
 
 export class AuthenticationService extends FetchService {
     private router = useRouter();
@@ -10,34 +11,27 @@ export class AuthenticationService extends FetchService {
         super(AuthenticationService.name);
     }
 
-    async login(login: LoginModel): Promise<ResponseModel> {
-        //Try logging out first
-        try {
-            await this.fetchData<ResponseModel>(
-                new FetchModel(this.login.name, "/auth/logout", "GET")
-            );
-        } catch (e) {
-            //Do nothing
+    async login(login: LoginModel): Promise<TokenModel> {
+        // const response = await fetch(BaseService.baseUrl + "/auth/login", {
+        //     method: "POST",
+        //     credentials: "include",
+        //     mode: "cors",
+        //     headers: {
+        //         "Content-type": "application/json",
+        //     },
+        //     body:
+        // });
+
+        try{
+
+            const response = await this.fetchData<TokenModel>(new FetchModel(this.login.name, "/auth/login", "POST", {
+                body: login
+            }));
+            return response;
         }
-
-        const response = await fetch(BaseService.baseUrl + "/auth/login", {
-            method: "GET",
-            credentials: "include",
-            mode: "cors",
-            headers: {
-                "Content-type": "application/json",
-                Authorization: "Basic " + btoa(login.email + ":" + login.password),
-            },
-        });
-
-        this.logResponse(this.login.name, { success: response.ok, response: response });
-
-        if (await response.text()) {
-            const result = new ResponseModel(response.ok, await response.json());
-            return Promise.resolve(result);
+        catch{
+            return Promise.reject("Unauthorized");
         }
-
-        return Promise.resolve(new ResponseModel(response.ok, undefined));
     }
 
     async register(model: RegisterModel): Promise<ResponseModel> {

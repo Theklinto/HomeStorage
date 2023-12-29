@@ -112,18 +112,35 @@ builder.Services.AddAuthorization(options =>
     options.DefaultPolicy = policyBuilder.Build();
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+//    {
+//        options.SlidingExpiration = true;
+//        options.ExpireTimeSpan = new TimeSpan(30, 0, 0, 0);
+//        options.Events.OnRedirectToLogin = (context) =>
+//        {
+//            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+//            return Task.CompletedTask;
+//        };
+//        options.Cookie.HttpOnly = true;
+//        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+//    });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        options.SlidingExpiration = true;
-        options.ExpireTimeSpan = new TimeSpan(30, 0, 0, 0);
-        options.Events.OnRedirectToLogin = (context) =>
+        string secret = config["JWTSettings:Secret"]
+            ?? throw new ArgumentNullException("JWT Secret not set!", "JWTSettings:Secret");
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Task.CompletedTask;
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["JWTSettings:Issuer"],
+            ValidAudience = config["JWTSettings:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
         };
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
     });
 
 

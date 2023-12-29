@@ -43,10 +43,7 @@ async function login() {
     isLoading.value = true;
     try {
         const response = await authService.login(loginModel.value);
-        if (response.success) {
-            LocalStorageService.isAuthenticated(true);
-            router.push({ name: "locations.list" });
-        }
+        LocalStorageService.setUserToken(response);
     } catch {
         //Do nothing
     } finally {
