@@ -83,27 +83,6 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<HomeStorageDbContext>()
     .AddDefaultTokenProviders();
 
-//// Adding Authentication
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//// Adding Jwt Bearer
-//.AddJwtBearer(options =>
-//{
-//    options.SaveToken = true;
-//    options.RequireHttpsMetadata = false;
-//    options.TokenValidationParameters = new TokenValidationParameters()
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidAudience = config["JWT:ValidAudience"],
-//        ValidIssuer = config["JWT:ValidIssuer"],
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Secret"]!)),
-//    };
-//});
 builder.Services.AddAuthorization(options =>
 {
     AuthorizationPolicyBuilder policyBuilder = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
@@ -111,20 +90,6 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser();
     options.DefaultPolicy = policyBuilder.Build();
 });
-
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-//    {
-//        options.SlidingExpiration = true;
-//        options.ExpireTimeSpan = new TimeSpan(30, 0, 0, 0);
-//        options.Events.OnRedirectToLogin = (context) =>
-//        {
-//            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-//            return Task.CompletedTask;
-//        };
-//        options.Cookie.HttpOnly = true;
-//        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
-//    });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
