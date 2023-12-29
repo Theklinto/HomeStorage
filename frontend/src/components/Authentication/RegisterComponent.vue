@@ -50,8 +50,8 @@ const router = useRouter();
 async function register() {
     isLoading.value = true;
     try {
-        const response = await authenticationService.register(registerModel.value);
-        if (response.success) {
+        const created = await authenticationService.register(registerModel.value);
+        if (created) {
             activeModalData.value = new ModalData(
                 "User created!",
                 "The user was created successfully.",
@@ -63,8 +63,7 @@ async function register() {
                 }
             );
         } else {
-            const errorText = await (response.response as Response).json()
-            activeModalData.value = new DefaultErrorModal(JSON.stringify(errorText));
+            activeModalData.value = new DefaultErrorModal(JSON.stringify("User could not be created!"));
         }
     } catch (e) {
         const errorText = await (e as Response).json()
