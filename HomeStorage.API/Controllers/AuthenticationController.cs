@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using HomeStorage.Logic.Models.AuthenticationModels;
+using System.Reflection;
 
 namespace HomeStorage.API.Controllers
 {
