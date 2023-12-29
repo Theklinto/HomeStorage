@@ -20,10 +20,20 @@
             />
         </form>
     </div>
+    <table class="version-container text-white">
+        <tr>
+            <td class="version">API V.</td>
+            <td>{{ apiVersion }}</td>
+        </tr>
+        <tr>
+            <td class="version">Client V.</td>
+            <td>{{ clientVersion }}</td>
+        </tr>
+    </table>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { LoginModel } from "@/models/Authentication/LoginModel";
 import { AuthenticationService } from "@/services/AuthenticationService";
 import { useRouter } from "vue-router";
@@ -33,11 +43,20 @@ import { BootstrapType } from "@/services/BootstrapService";
 import HSSpacer from "../SharedComponents/Visual/HSSpacer.vue";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
 import { LocalStorageService } from "@/services/LocalStorage";
+import { InformationService } from "@/services/InformationService";
 
 const authService = new AuthenticationService();
+const infoService = new InformationService();
+const apiVersion = ref("0.0.0.0");
+const clientVersion = ref("0.0.0.0");
 const loginModel = ref(new LoginModel());
 const isLoading = ref(false);
 const router = useRouter();
+
+onMounted(async () => {
+    apiVersion.value = await infoService.getAPIVersion();
+    clientVersion.value = infoService.getClientVersion();
+});
 
 async function login() {
     isLoading.value = true;
@@ -52,4 +71,14 @@ async function login() {
     }
 }
 </script>
-<style scoped></style>
+<style scoped>
+.version-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 10px;
+}
+.version-container .version {
+    padding-right: 10px;
+}
+</style>
