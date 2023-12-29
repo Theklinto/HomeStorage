@@ -39,5 +39,4 @@ Since this is a one man operation (for now), the development will be slow. But a
     - Currently it's being developed with Android users in mind, using the back button at the bottom. Meaning it could be trivial for iOS users without a dedicated back button.
 
 ### Known bugs
-- Needs login every day
-    - Seems like something is wrong with the login sequence, since it asks for login every day. The cookie authentication should be valid for 30 days at a time.
+- Can't delete a product while it's in a category
