@@ -11,7 +11,7 @@ using HomeStorage.Logic.Models.LocationModels;
 
 namespace HomeStorage.API.Controllers
 {
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class LocationController : Controller

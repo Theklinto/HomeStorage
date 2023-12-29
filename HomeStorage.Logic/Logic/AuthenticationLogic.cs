@@ -21,36 +21,25 @@ namespace HomeStorage.Logic.Logic
             _configuration = configuration;
         }
 
-        //public async Task<ResponseModel> Register(RegisterModel model)
-        //{
-        //    IdentityUser? user = await _userManager.FindByEmailAsync(model.Email);
-        //    if (user is not null)
-        //        return new()
-        //        {
-        //            Message = "Email er allerede i brug af en anden bruger."
-        //        };
+        public async Task<bool> Register(RegisterModel model)
+        {
+            IdentityUser? user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is not null)
+                return false;
 
-        //    user = new()
-        //    {
-        //        Email = model.Email,
-        //        SecurityStamp = Guid.NewGuid().ToString(),
-        //        UserName = model.Username,
-        //    };
-        //    IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+            user = new()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username,
+            };
+            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
-        //    if (result.Succeeded is false)
-        //        return new()
-        //        {
-        //            Message = ("Kunne ikke oprette brugeren, tjek de angivne oplysninger og prøv igen.\r\n" +
-        //                string.Join("\r\n", result.Errors.Select(x => x.Description))).Trim()
-        //        };
+            if (result.Succeeded is false)
+                return false;
 
-        //    return new()
-        //    {
-        //        Success = true,
-        //        Message = "Brugeren blev oprettet korrekt."
-        //    };
-        //}
+            return true;
+        }
 
         public async Task<TokenModel?> LoginAsync(LoginModel loginModel)
         {

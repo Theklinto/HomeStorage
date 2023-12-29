@@ -22,26 +22,27 @@ export class AuthenticationService extends FetchService {
         //     body:
         // });
 
-        try{
-
-            const response = await this.fetchData<TokenModel>(new FetchModel(this.login.name, "/auth/login", "POST", {
-                body: login
-            }));
+        try {
+            const response = await this.fetchData<TokenModel>(
+                new FetchModel(this.login.name, "/auth/login", "POST", {
+                    body: login,
+                })
+            );
             return response;
-        }
-        catch{
+        } catch {
             return Promise.reject("Unauthorized");
         }
     }
 
-    async register(model: RegisterModel): Promise<ResponseModel> {
+    async register(model: RegisterModel): Promise<boolean> {
         try {
-            const response = await this.fetchData<ResponseModel>(
+            await this.fetchData<void>(
                 new FetchModel(this.register.name, "/auth/register", "POST", { body: model })
             );
-            return Promise.resolve(response);
+            debugger;
+            return Promise.resolve(true);
         } catch (e) {
-            return Promise.resolve({ success: false, response: e });
+            return Promise.resolve(false);
         }
     }
 

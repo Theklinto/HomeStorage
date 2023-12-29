@@ -106,7 +106,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 //});
 builder.Services.AddAuthorization(options =>
 {
-    AuthorizationPolicyBuilder policyBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme)
+    AuthorizationPolicyBuilder policyBuilder = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
         .RequireClaim(ClaimTypes.NameIdentifier)
         .RequireAuthenticatedUser();
     options.DefaultPolicy = policyBuilder.Build();

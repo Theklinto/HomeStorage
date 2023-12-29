@@ -31,23 +31,13 @@ namespace HomeStorage.API.Controllers
                 Unauthorized();
         }
 
-        //[HttpGet]
-        //[Route("logout")]
-        //[Produces("application/json")]
-        //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-        //public async Task<IActionResult> Logout()
-        //{
-        //    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //[Route("register")]
-        //public async Task<IActionResult> Register([FromForm] RegisterModel model)
-        //{
-        //    ResponseModel response = await _authenticationLogic.Register(model);
-        //    return response.Success ?
-        //        Ok(response) : Conflict(response);
-        //}
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromForm] RegisterModel model)
+        {
+            bool created = await _authenticationLogic.Register(model);
+            return created ?
+                Ok() : Conflict();
+        }
     }
 }
