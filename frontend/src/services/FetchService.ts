@@ -25,24 +25,19 @@ export abstract class FetchService extends BaseService {
                     method: fetchModel.method,
                     mode: "cors",
                     credentials: "include",
-                    headers: [["Authorization", `Bearer ${LocalStorageService.getUserToken()}`]],
                     body: fetchModel.body ? formData : undefined,
                 }
             )
                 .then(async (response) => {
                     const responseText = await response.text();
-                    if (response.ok) {
-                        if (responseText) {
-                            JSON.parse(responseText);
-                            const fetchedModel = JSON.parse(responseText) as expectedModel;
-                            this.logResponse(fetchModel.callerFunction, {
-                                success: true,
-                                response: response,
-                            });
-                            resolve(fetchedModel);
-                        }
-
-                        resolve(undefined as unknown as expectedModel);
+                    if (response.ok && responseText) {
+                        JSON.parse(responseText);
+                        const fetchedModel = JSON.parse(responseText) as expectedModel;
+                        this.logResponse(fetchModel.callerFunction, {
+                            success: true,
+                            response: response,
+                        });
+                        resolve(fetchedModel);
                     } else {
                         this.logResponse(fetchModel.callerFunction, {
                             success: false,
@@ -50,7 +45,7 @@ export abstract class FetchService extends BaseService {
                         });
 
                         if (response.status == 401) {
-                            LocalStorageService.removeUserToken();
+                            LocalStorageService.isAuthenticated(false);
                             useRouter().replace({ name: "auth.login" });
                         }
 

@@ -13,7 +13,7 @@ const router = createRouter({
 //Before routing events
 router.beforeEach((to) => {
     const noAuth = to.matched.filter((record) => record.meta.requiresAuth == false);
-    if (noAuth.length == 0 && LocalStorageService.getUserToken() === "") {
+    if (noAuth.length == 0 && LocalStorageService.isAuthenticated() == false) {
         console.log("No auth redirecting");
         return { name: "auth.login" };
     }
