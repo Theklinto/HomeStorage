@@ -2,13 +2,12 @@
     <LoadingComponent :is-loading="isLoading"></LoadingComponent>
     <ModalComponent :data="activeModalData"></ModalComponent>
     <div class="container-fluid">
-        <ImagePreview
-            :file-preview="categoryUpdateModel.newImage"
+        <HSImageInput
+            v-model="categoryUpdateModel.newImage"
             :fallback-image-id="categoryUpdateModel.imageId"
         />
         <div class="m-4 text-white">
             <HSInput v-model="categoryUpdateModel.name" :label="'Category name'" />
-            <HSImageInput v-model="categoryUpdateModel.newImage" :label="'Category image'" />
             <HSSpacer :height="2" />
             <HSButton
                 v-if="editMode"
@@ -44,15 +43,14 @@ import { ModalData } from "@/models/SharedModels/ModalData";
 import { CategoryService } from "@/services/CategoryService";
 import LoadingComponent from "../SharedComponents/LoadingComponent.vue";
 import ModalComponent from "../SharedComponents/ModalComponent.vue";
-import ImagePreview from "../SharedComponents/ImagePreview.vue";
 
 import { Ref, computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import HSImageInput from "../SharedComponents/Input/HSImageInput.vue";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
 import { BootstrapType } from "@/services/BootstrapService";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
 import HSSpacer from "../SharedComponents/Visual/HSSpacer.vue";
+import HSImageInput from "../SharedComponents/Input/HSImageInput.vue";
 
 const isLoading = ref(false);
 const activeModalData: Ref<ModalData | undefined> = ref(undefined);
