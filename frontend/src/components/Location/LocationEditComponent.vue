@@ -3,8 +3,8 @@
         <LoadingComponent :is-loading="isLoading"></LoadingComponent>
         <ModalComponent :data="activeModalData"></ModalComponent>
         <div class="container-fluid">
-            <ImagePreview
-                :file-preview="locationUpdateModel.newImage"
+            <HSImageInput
+                v-model="locationUpdateModel.newImage"
                 :fallback-image-id="locationUpdateModel.imageId"
             />
             <div class="m-4 text-white">
@@ -12,10 +12,6 @@
                 <HSInput
                     v-model="locationUpdateModel.description"
                     :label="'Location description'"
-                />
-                <HSImageInput
-                    :label="'Location image'"
-                    v-model="locationUpdateModel.newImage"
                 />
                 <HSSpacer :height="2" />
                 <HSButton
@@ -55,12 +51,11 @@ import { LocationService } from "@/services/LocationService";
 import ModalComponent from "../SharedComponents/ModalComponent.vue";
 import { ModalData } from "@/models/SharedModels/ModalData";
 import LoadingComponent from "../SharedComponents/LoadingComponent.vue";
-import ImagePreview from "../SharedComponents/ImagePreview.vue";
-import HSImageInput from "@/components/SharedComponents/Input/HSImageInput.vue";
 import { BootstrapType } from "@/services/BootstrapService";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
 import HSButton from "../SharedComponents/Controls/HSButton.vue";
 import HSSpacer from "@/components/SharedComponents/Visual/HSSpacer.vue";
+import HSImageInput from "../SharedComponents/Input/HSImageInput.vue";
 const route = useRoute();
 const router = useRouter();
 const locationUpdateModel: Ref<LocationUpdateModel> = ref(new LocationUpdateModel());

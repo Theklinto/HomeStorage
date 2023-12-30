@@ -2,8 +2,8 @@
     <ModalComponent :data="activeModalData" />
     <LoadingComponent :is-loading="isLoading" />
     <div class="container-fluid">
-        <ImagePreview
-            :file-preview="productUpdateModel.newImage"
+        <HSImageInput
+            v-model="productUpdateModel.newImage"
             :fallback-image-id="productUpdateModel.imageId"
         />
         <div class="m-4 text-white">
@@ -25,8 +25,7 @@
                 :label="'Categories'"
                 :lookup="availableCategories"
                 v-model="selectedCategories"
-            />
-            <HSImageInput :label="'Product image'" v-model="productUpdateModel.newImage" />
+            />          
             <HSSpacer :height="2" />
             <HSButton
                 v-if="editMode"
@@ -54,7 +53,6 @@ import { ModalData } from "@/models/SharedModels/ModalData";
 import { ProductUpdateModel } from "@/models/Product/ProductUpdateModel";
 import { useRoute, useRouter } from "vue-router";
 import { ProductService } from "@/services/ProductService";
-import ImagePreview from "../SharedComponents/ImagePreview.vue";
 import HSInput from "../SharedComponents/Input/HSInput.vue";
 import HSIncrementInput from "../SharedComponents/Input/HSIncrementInput.vue";
 import HSDatepicker from "../SharedComponents/Input/HSDatepicker.vue";
