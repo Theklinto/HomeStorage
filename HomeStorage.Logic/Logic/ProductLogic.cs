@@ -145,11 +145,13 @@ namespace HomeStorage.Logic.Logic
                 return null;
 
             Product? product = await _db.Products
+                .Include(x => x.Categories)
                 .FirstOrDefaultAsync(x => x.ProductId == productId);
 
             if (product is null)
                 return null;
 
+            product.Categories.Clear();
             _db.Products.Remove(product);
 
             await _db.SaveChangesAsync();
