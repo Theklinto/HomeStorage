@@ -19,8 +19,9 @@ using HomeStorage.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration config = new ConfigurationBuilder()
-#if RELEASE
     .AddJsonFile("appsettings.json")
+#if RELEASE
+    .AddJsonFile("appsettings.Production.json")
 #else
     .AddJsonFile($"appsettings.Development.json")
 #endif

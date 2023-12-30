@@ -4,6 +4,7 @@ module.exports = defineConfig({
     pwa: {
         workboxOptions: {
             skipWaiting: true,
+            exclude: ["raw-icons.ini"],
         },
     },
 });
