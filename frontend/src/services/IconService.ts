@@ -8,6 +8,8 @@ export enum Icon {
     Users = "users",
     Filter = "filter",
     ArrowRotateLeft = "arrow-rotate-left",
+    ArrowUp = "arrow-up",
+    ArrowDown = "arrow-down"
 }
 
 export class IconService {

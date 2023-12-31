@@ -8,6 +8,7 @@
             :value="modelValue"
             :placeholder="placeholder"
             :class="{ 'clear-button-clearfix': showClearButton }"
+            :disabled="disabled"
         />
         <div v-if="showClearButton" :class="'clear-button'" class="">
             <HSButton @click="clearInput" :icon="Icon.X" />
@@ -25,10 +26,12 @@ interface Props {
     inputType?: "Text" | "Password";
     placeholder?: string;
     showClearButton?: boolean;
+    disabled?: boolean;
 }
 const _props = withDefaults(defineProps<Props>(), {
     inputType: "Text",
     showClearButton: false,
+    disabled: false,
 });
 const emit = defineEmits(["update:modelValue"]);
 

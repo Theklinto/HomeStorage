@@ -1,6 +1,6 @@
 <template>
     <div class="container-fuid" style="overflow-x: hidden">
-        <div v-if="enableFilters" :class="'searchbar'" class="d-flex">
+        <div v-if="enableFilters" :class="'searchbar position-relative'" class="d-flex">
             <HSInput
                 :class="'search'"
                 :placeholder="'Search'"
@@ -13,6 +13,36 @@
                     :type="BootstrapType.Secondary"
                     :disable-margin="true"
                 />
+            </div>
+            <div class="filter-container bg-secondary text-white">
+                <div class="row m-1">
+                    <label>Order by</label>
+                    <HSSpacer :height="1" />
+                    <div
+                        v-for="filter in CardData.getFilters()"
+                        :key="filter.propertyName"
+                        class="mt-1"
+                        :class="{
+                            'bg-warning': selectedOrderByProperty == filter.propertyName,
+                            'bg-dark': selectedOrderByProperty != filter.propertyName,
+                        }"
+                        style="border-radius: 5px; padding-left: 2em; position: relative;"
+                        @click="
+                            () => {
+                                selectedOrderByProperty = filter.propertyName;
+                            }
+                        "
+                    >
+                        <label>{{ filter.displayName }}</label>
+                        <HSIcon
+                            :icon="Icon."
+                        />
+                    </div>
+                </div>
+                <div class="row justify-content-around d-flex">
+                    <HSButton :label="'Apply filters'" :type="BootstrapType.Success" :width="60" />
+                    <HSButton :type="BootstrapType.Danger" :width="25" :icon="Icon.X" />
+                </div>
             </div>
         </div>
         <HSInput
@@ -113,6 +143,7 @@ import { Icon } from "@/services/IconService";
 import HSSpacer from "./Visual/HSSpacer.vue";
 import { NavigationService } from "@/services/NavigationService";
 import HSInput from "./Input/HSInput.vue";
+import HSIcon from "./Visual/HSIcon.vue";
 
 interface Props {
     cards: CardData[];
@@ -131,6 +162,7 @@ const cardData: Ref<CardData[]> = ref([]);
 const router = useRouter();
 const countMap = ref(new Map<string, number>([]));
 const searchExpression = ref("");
+const selectedOrderByProperty: Ref<unknown> = ref(undefined);
 
 const filteredCards = computed(() => {
     if (searchExpression.value != "" && typeof searchExpression.value === "string") {
@@ -224,5 +256,16 @@ img {
     height: 100%;
     position: absolute;
     font-size: 2em;
+}
+.filter-container {
+    width: 300px;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-x: auto;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    z-index: 10;
+    border-radius: 5px;
 }
 </style>

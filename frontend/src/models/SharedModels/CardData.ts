@@ -4,6 +4,7 @@ import { RouteLocationRaw } from "vue-router";
 import { v4 as uuid } from "uuid";
 import moment, { Moment } from "moment";
 import { Utilities } from "@/Utilities";
+import { OrderableProperty } from "../UserSettings/Filters/OrderByProperty";
 
 export class CardData {
     constructor(init?: Partial<CardData>) {
@@ -18,6 +19,13 @@ export class CardData {
     public route!: RouteLocationRaw;
     public cardSwiped = false;
     public buttons: CardDataButton[] = [];
+
+    //Filters
+    private static titleFilter = new OrderableProperty<CardData, "Title">("Title", "Title");
+    private static countFilter = new OrderableProperty<CardData, "count">("count", "Count");
+    public static getFilters(){
+        return [this.titleFilter, this.countFilter];
+    }
 }
 
 export class ProductCardData extends CardData {

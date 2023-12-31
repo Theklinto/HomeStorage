@@ -5,14 +5,14 @@
         :enable-swipe="true"
         :swipe-component="SwipeComponent.Incremental"
         @update:count="updateCount"
-        :enable-filters="false"
+        :enable-filters="true"
         :enable-search="true"
     ></VerticalCards>
 </template>
 
 <script setup lang="ts">
 import { ProductModel } from "@/models/Product/ProductModel";
-import { ProductCardData, SwipeComponent } from "@/models/SharedModels/CardData";
+import { CardData, ProductCardData, SwipeComponent } from "@/models/SharedModels/CardData";
 import { ImageService } from "@/services/ImageService";
 import { ProductService } from "@/services/ProductService";
 import { Ref, computed, onMounted, ref } from "vue";
@@ -22,6 +22,7 @@ import { NavigationService } from "@/services/NavigationService";
 import { ProductsAddNavbar } from "@/navbarDefinitions";
 import { ProductUpdateModel } from "@/models/Product/ProductUpdateModel";
 import HSHeader from "../SharedComponents/Visual/HSHeader.vue";
+import { OrderByProperty } from "@/models/UserSettings/Filters/OrderByProperty";
 import moment from "moment";
 
 interface Props {
@@ -36,7 +37,7 @@ const categoryId = ref("");
 const locationId = ref("");
 const products: Ref<ProductModel[]> = ref([]);
 const productCards = computed<ProductCardData[]>(() => {
-    const cardData: ProductCardData[] = products.value.map((product) => {
+    let cardData: ProductCardData[] = products.value.map((product) => {
         return new ProductCardData({
             Id: product.productId,
             Title: product.name,
@@ -47,6 +48,8 @@ const productCards = computed<ProductCardData[]>(() => {
             expirationDate: product.expirationDate,
         });
     });
+
+    // cardData = OrderByProperty.order(cardData, "Title");
     return cardData;
 });
 const productService = new ProductService();
