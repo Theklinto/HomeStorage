@@ -22,80 +22,87 @@
             v-model="searchExpression"
             :show-clear-button="true"
         />
-        <div
-            v-for="card in filteredCards"
-            :key="card.Id"
-            v-touch:hold="
-                () => {
-                    toggleSwipeButton(card.Id);
-                }
-            "
-        >
-            <div class="card" :class="{ 'disabled-overlay': card.count == 0 }">
-                <RouterLink :to="card.route">
-                    <div class="row card-body text-white">
-                        <div class="col-4">
-                            <img :src="card.ImageUrl" class="rounded" />
-                        </div>
-                        <div class="col-8">
-                            <h5 class="card-title">{{ card.Title }}</h5>
-                            <div
-                                class="card-subtitle"
-                                :class="BootstrapService.GetTextColor((card as ProductCardData).getExpirationTimeframe())"
-                                v-if="(card instanceof ProductCardData) && (card as ProductCardData).getExpirationDateDisplay() != ''"
-                            >
-                                <span>Expiration date: </span>
-                                <span>{{
-                                    (card as ProductCardData).getExpirationDateDisplay()
-                                }}</span>
+        <div class="row">
+            <div
+                v-for="card in filteredCards"
+                class="col-sm-12 col-xl-4 equal-height"
+                :key="card.Id"
+                v-touch:hold="
+                    () => {
+                        toggleSwipeButton(card.Id);
+                    }
+                "
+            >
+                <div class="card w-100" :class="{ 'disabled-overlay': card.count == 0 }">
+                    <RouterLink :to="card.route">
+                        <div class="row card-body text-white">
+                            <div class="col-4">
+                                <img :src="card.ImageUrl" class="rounded" />
                             </div>
-                            <div>
-                                <h6 v-if="card.count" class="d-inline" style="padding-right: 0.5em">
-                                    {{ card.count }} x
-                                </h6>
-                                <h6 class="card-subtitle d-inline">
-                                    {{ card.Description }}
-                                </h6>
+                            <div class="col-8">
+                                <h5 class="card-title">{{ card.Title }}</h5>
+                                <div
+                                    class="card-subtitle"
+                                    :class="BootstrapService.GetTextColor((card as ProductCardData).getExpirationTimeframe())"
+                                    v-if="(card instanceof ProductCardData) && (card as ProductCardData).getExpirationDateDisplay() != ''"
+                                >
+                                    <span>Expiration date: </span>
+                                    <span>{{
+                                        (card as ProductCardData).getExpirationDateDisplay()
+                                    }}</span>
+                                </div>
+                                <div>
+                                    <h6
+                                        v-if="card.count"
+                                        class="d-inline"
+                                        style="padding-right: 0.5em"
+                                    >
+                                        {{ card.count }} x
+                                    </h6>
+                                    <h6 class="card-subtitle d-inline">
+                                        {{ card.Description }}
+                                    </h6>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </RouterLink>
-            </div>
-            <Transition>
-                <div v-if="card.cardSwiped">
-                    <div
-                        v-if="swipeComponent == SwipeComponent.Button"
-                        class="justify-content-around d-flex w-100"
-                        style="font-size: 2em"
-                    >
-                        <HSButton
-                            v-for="button in card.buttons.filter((x) => x.display)"
-                            :key="button.id"
-                            @click="() => router.push(button.route)"
-                            :icon="button.icon"
-                            :type="button.type"
-                            :invert="true"
-                        />
-                    </div>
-                    <div class="d-flex justify-content-center align-items-center" v-else>
-                        <div class="row gx-5">
-                            <HSIncrementInput
-                                class="col-9"
-                                v-model="card.count"
-                                :disable-margin="true"
-                            />
-                            <HSButton
-                                class="col-2"
-                                style="width: fit-content !important"
-                                :icon="Icon.Save"
-                                :type="BootstrapType.Warning"
-                                :disable-margin="true"
-                                @click="() => saveCount(card.Id)"
-                            ></HSButton>
-                        </div>
-                    </div>
+                    </RouterLink>
                 </div>
-            </Transition>
+                <Transition>
+                    <div v-if="card.cardSwiped">
+                        <div
+                            v-if="swipeComponent == SwipeComponent.Button"
+                            class="justify-content-around d-flex w-100"
+                            style="font-size: 2em"
+                        >
+                            <HSButton
+                                v-for="button in card.buttons.filter((x) => x.display)"
+                                :key="button.id"
+                                @click="() => router.push(button.route)"
+                                :icon="button.icon"
+                                :type="button.type"
+                                :invert="true"
+                            />
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center" v-else>
+                            <div class="row gx-5">
+                                <HSIncrementInput
+                                    class="col-9"
+                                    v-model="card.count"
+                                    :disable-margin="true"
+                                />
+                                <HSButton
+                                    class="col-2"
+                                    style="width: fit-content !important"
+                                    :icon="Icon.Save"
+                                    :type="BootstrapType.Warning"
+                                    :disable-margin="true"
+                                    @click="() => saveCount(card.Id)"
+                                ></HSButton>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
         </div>
     </div>
     <!-- Adjust for bottm navbar -->
@@ -224,5 +231,9 @@ img {
     height: 100%;
     position: absolute;
     font-size: 2em;
+}
+.equal-height {
+  display: -webkit-flex;
+  flex-wrap: wrap;
 }
 </style>
