@@ -25,7 +25,7 @@
         <div class="row">
             <div
                 v-for="card in filteredCards"
-                class="col-sm-12 col-xl-4 equal-height"
+                class="col-sm-12 col-md-4 equal-height"
                 :key="card.Id"
                 v-touch:hold="
                     () => {

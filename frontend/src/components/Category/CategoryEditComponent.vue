@@ -3,13 +3,13 @@
     <ModalComponent :data="activeModalData"></ModalComponent>
     <div class="container-fluid">
         <div class="row d-flex align-items-center">
-            <div class="col-sm-12 col-xl-6">
+            <div class="col-sm-12 col-md-6">
                 <HSImageInput
                     v-model="categoryUpdateModel.newImage"
                     :fallback-image-id="categoryUpdateModel.imageId"
                 />
             </div>
-            <div class="col-sm-12 col-xl-6">
+            <div class="col-sm-12 col-md-6">
                 <div class="m-4 text-white">
                     <HSInput v-model="categoryUpdateModel.name" :label="'Category name'" />
                     <HSSpacer :height="2" />

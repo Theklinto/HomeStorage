@@ -3,13 +3,13 @@
     <LoadingComponent :is-loading="isLoading" />
     <div class="container-fluid">
         <div class="row d-flex align-items-center">
-            <div class="col-sm-12 col-xl-6">
+            <div class="col-sm-12 col-md-6">
                 <HSImageInput
                     v-model="productUpdateModel.newImage"
                     :fallback-image-id="productUpdateModel.imageId"
                 />
             </div>
-            <div class="col-sm-12 col-xl-6">
+            <div class="col-sm-12 col-md-6">
                 <div class="m-4 text-white">
                     <HSInput :label="'Product name'" v-model="productUpdateModel.name" />
                     <HSInput

@@ -4,13 +4,13 @@
         <ModalComponent :data="activeModalData"></ModalComponent>
         <div class="container-fluid">
             <div class="row d-flex align-items-center">
-                <div class="col-sm-16 col-xl-6">
+                <div class="col-sm-16 col-md-6">
                     <HSImageInput
                         v-model="locationUpdateModel.newImage"
                         :fallback-image-id="locationUpdateModel.imageId"
                     />
                 </div>
-                <div class="col-sm-16 col-xl-6">
+                <div class="col-sm-16 col-md-6">
                     <div class="m-4 text-white">
                         <HSInput :label="'Location name'" v-model="locationUpdateModel.name" />
                         <HSInput
