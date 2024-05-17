@@ -2,45 +2,63 @@
     <ModalComponent :data="activeModalData" />
     <LoadingComponent :is-loading="isLoading" />
     <div class="container-fluid">
-        <HSImageInput
-            v-model="productUpdateModel.newImage"
-            :fallback-image-id="productUpdateModel.imageId"
-        />
-        <div class="m-4 text-white">
-            <HSInput :label="'Product name'" v-model="productUpdateModel.name" />
-            <HSInput :label="'Product description'" v-model="productUpdateModel.description" />
-            <div class="row">
-                <HSIncrementInput
-                    class="col-6"
-                    :label="'Amount'"
-                    v-model="productUpdateModel.amount"
-                />
-                <HSDatepicker
-                    v-model="productUpdateModel.expirationDate"
-                    :label="'Expiration date'"
-                    class="col-6"
+        <div class="row d-flex align-items-center">
+            <div class="col-sm-12 col-xl-6">
+                <HSImageInput
+                    v-model="productUpdateModel.newImage"
+                    :fallback-image-id="productUpdateModel.imageId"
                 />
             </div>
-            <HSMultiSelect
-                :label="'Categories'"
-                :lookup="availableCategories"
-                v-model="selectedCategories"
-            />          
-            <HSSpacer :height="2" />
-            <HSButton
-                v-if="editMode"
-                :label="'Update'"
-                :type="BootstrapType.Warning"
-                @click="updateProduct"
-            />
-            <HSButton v-else :label="'Add'" :type="BootstrapType.Success" @click="createProduct" />
-            <HSButton :label="'Cancel'" :type="BootstrapType.Secondary" @click="router.back" />
-            <HSButton
-                v-if="editMode"
-                :label="'Delete'"
-                :type="BootstrapType.Danger"
-                @click="deleteProductConfirmation"
-            />
+            <div class="col-sm-12 col-xl-6">
+                <div class="m-4 text-white">
+                    <HSInput :label="'Product name'" v-model="productUpdateModel.name" />
+                    <HSInput
+                        :label="'Product description'"
+                        v-model="productUpdateModel.description"
+                    />
+                    <div class="row">
+                        <HSIncrementInput
+                            class="col-6"
+                            :label="'Amount'"
+                            v-model="productUpdateModel.amount"
+                        />
+                        <HSDatepicker
+                            v-model="productUpdateModel.expirationDate"
+                            :label="'Expiration date'"
+                            class="col-6"
+                        />
+                    </div>
+                    <HSMultiSelect
+                        :label="'Categories'"
+                        :lookup="availableCategories"
+                        v-model="selectedCategories"
+                    />
+                    <HSSpacer :height="2" />
+                    <HSButton
+                        v-if="editMode"
+                        :label="'Update'"
+                        :type="BootstrapType.Warning"
+                        @click="updateProduct"
+                    />
+                    <HSButton
+                        v-else
+                        :label="'Add'"
+                        :type="BootstrapType.Success"
+                        @click="createProduct"
+                    />
+                    <HSButton
+                        :label="'Cancel'"
+                        :type="BootstrapType.Secondary"
+                        @click="router.back"
+                    />
+                    <HSButton
+                        v-if="editMode"
+                        :label="'Delete'"
+                        :type="BootstrapType.Danger"
+                        @click="deleteProductConfirmation"
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </template>

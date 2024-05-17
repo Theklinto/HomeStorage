@@ -3,41 +3,47 @@
         <LoadingComponent :is-loading="isLoading"></LoadingComponent>
         <ModalComponent :data="activeModalData"></ModalComponent>
         <div class="container-fluid">
-            <HSImageInput
-                v-model="locationUpdateModel.newImage"
-                :fallback-image-id="locationUpdateModel.imageId"
-            />
-            <div class="m-4 text-white">
-                <HSInput :label="'Location name'" v-model="locationUpdateModel.name" />
-                <HSInput
-                    v-model="locationUpdateModel.description"
-                    :label="'Location description'"
-                />
-                <HSSpacer :height="2" />
-                <HSButton
-                    v-if="editMode"
-                    @click="updateLocation"
-                    :label="'Update'"
-                    :type="BootstrapType.Warning"
-                />
-                <HSButton
-                    v-else
-                    @click="createLocation"
-                    :label="'Add'"
-                    :type="BootstrapType.Success"
-                />
-                <HSButton
-                    @click="router.back"
-                    :label="'Cancel'"
-                    :type="BootstrapType.Secondary"
-                />
-                <HSSpacer :height="1" />
-                <HSButton
-                    v-if="editMode"
-                    @click="deleteLocationConfirmation"
-                    :label="'Delete'"
-                    :type="BootstrapType.Danger"
-                />
+            <div class="row d-flex align-items-center">
+                <div class="col-sm-16 col-xl-6">
+                    <HSImageInput
+                        v-model="locationUpdateModel.newImage"
+                        :fallback-image-id="locationUpdateModel.imageId"
+                    />
+                </div>
+                <div class="col-sm-16 col-xl-6">
+                    <div class="m-4 text-white">
+                        <HSInput :label="'Location name'" v-model="locationUpdateModel.name" />
+                        <HSInput
+                            v-model="locationUpdateModel.description"
+                            :label="'Location description'"
+                        />
+                        <HSSpacer :height="2" />
+                        <HSButton
+                            v-if="editMode"
+                            @click="updateLocation"
+                            :label="'Update'"
+                            :type="BootstrapType.Warning"
+                        />
+                        <HSButton
+                            v-else
+                            @click="createLocation"
+                            :label="'Add'"
+                            :type="BootstrapType.Success"
+                        />
+                        <HSButton
+                            @click="router.back"
+                            :label="'Cancel'"
+                            :type="BootstrapType.Secondary"
+                        />
+                        <HSSpacer :height="1" />
+                        <HSButton
+                            v-if="editMode"
+                            @click="deleteLocationConfirmation"
+                            :label="'Delete'"
+                            :type="BootstrapType.Danger"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

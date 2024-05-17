@@ -2,37 +2,42 @@
     <LoadingComponent :is-loading="isLoading"></LoadingComponent>
     <ModalComponent :data="activeModalData"></ModalComponent>
     <div class="container-fluid">
-        <HSImageInput
-            v-model="categoryUpdateModel.newImage"
-            :fallback-image-id="categoryUpdateModel.imageId"
-        />
-        <div class="m-4 text-white">
-            <HSInput v-model="categoryUpdateModel.name" :label="'Category name'" />
-            <HSSpacer :height="2" />
-            <HSButton
-                v-if="editMode"
-                :label="'Update'"
-                :type="BootstrapType.Warning"
-                @click="updateCategory"
-            />
-            <HSButton
-                v-else
-                :label="'Add'"
-                :type="BootstrapType.Success"
-                @click="createCategory"
-            />
-            <HSButton
-                :label="'Cancel'"
-                :type="BootstrapType.Secondary"
-                @click="router.back"
-            />
-            <HSButton
-                v-if="editMode"
-                :label="'Delete'"
-                :type="BootstrapType.Danger"
-                @click="deleteCategoryConfirmation"
-            />
-            
+        <div class="row d-flex align-items-center">
+            <div class="col-sm-12 col-xl-6">
+                <HSImageInput
+                    v-model="categoryUpdateModel.newImage"
+                    :fallback-image-id="categoryUpdateModel.imageId"
+                />
+            </div>
+            <div class="col-sm-12 col-xl-6">
+                <div class="m-4 text-white">
+                    <HSInput v-model="categoryUpdateModel.name" :label="'Category name'" />
+                    <HSSpacer :height="2" />
+                    <HSButton
+                        v-if="editMode"
+                        :label="'Update'"
+                        :type="BootstrapType.Warning"
+                        @click="updateCategory"
+                    />
+                    <HSButton
+                        v-else
+                        :label="'Add'"
+                        :type="BootstrapType.Success"
+                        @click="createCategory"
+                    />
+                    <HSButton
+                        :label="'Cancel'"
+                        :type="BootstrapType.Secondary"
+                        @click="router.back"
+                    />
+                    <HSButton
+                        v-if="editMode"
+                        :label="'Delete'"
+                        :type="BootstrapType.Danger"
+                        @click="deleteCategoryConfirmation"
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </template>
