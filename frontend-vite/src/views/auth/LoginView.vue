@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col d-flex align-items-center flex-column gap-2">
                     <BoxIcon />
-                    <h1>Fjernlager</h1>
+                    <h1>{{ t("common.homestorageTitle") }}</h1>
                 </div>
             </div>
             <div class="row gy-2 mt-3">
@@ -13,10 +13,10 @@
                         <FloatLabel variant="on">
                             <InputText
                                 :disabled="isLoading"
-                                id="username"
+                                id="email"
                                 v-model="loginModel.email"
                             />
-                            <label for="username">Email</label>
+                            <label for="email">{{ t("authentication.emailFieldLabel") }}</label>
                         </FloatLabel>
                     </Fluid>
                 </div>
@@ -36,9 +36,9 @@
                 <div class="col">
                     <Fluid>
                         <Button
-                            :icon="`${isLoading ? 'pi pi-spinner pi-spin' : ''}`"
                             :disabled="isLoading"
-                            :label="`${isLoading ? '' : 'Login'}`"
+                            :label="t('authentication.loginBtnLabel')"
+                            :loading="isLoading"
                             class="w-100"
                             @click="login"
                         ></Button>
@@ -50,8 +50,9 @@
                     <Fluid>
                         <Button
                             :disabled="isLoading"
-                            label="Register"
+                            :label="t('authentication.loginBtnLabel')"
                             severity="secondary"
+                            @click="router.push({ name: 'auth.register' })"
                         ></Button>
                     </Fluid>
                 </div>
@@ -61,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
@@ -70,17 +71,25 @@ import Fluid from "primevue/fluid";
 import { LoginModel } from "../../models/authentication/loginModel";
 import { AuthenticationService } from "../../services/AuthenticationService";
 import { useRouter } from "vue-router";
+import { useTranslator } from "../../translation/localization";
 
 const authService = new AuthenticationService();
 const loginModel = ref<LoginModel>(new LoginModel());
 const isLoading = ref(false);
 const router = useRouter();
+const { t } = useTranslator();
+
+onBeforeMount(() => {
+    if (authService.isAuthenticated) {
+        router.push({ name: "home" });
+    }
+});
 
 async function login() {
     isLoading.value = true;
     try {
         await authService.login(loginModel.value);
-        router.push({ name: "locations.list" });
+        router.push({ name: "home" });
     } catch {
         //Do nothing
     } finally {
@@ -88,9 +97,4 @@ async function login() {
     }
 }
 </script>
-<style scoped>
-h1 {
-    margin: 0;
-    padding: 0;
-}
-</style>
+<style scoped></style>

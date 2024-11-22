@@ -1,0 +1,23 @@
+{
+    "common": {
+        "homestorageTitle": "HomeStorage",
+        "nameFieldLabel": "Name",
+        "descriptionFieldLabel": "Description",
+        "createBtnLabel": "Create"
+    },
+    "authentication": {
+        "loginBtnLabel": "Login",
+        "registerBtnLabel": "Register",
+        "usernameFieldLabel": "Username",
+        "passwordFieldLabel": "Password",
+        "emailFieldLabel": "Email",
+        "toLoginBtnLabel": "Go to login",
+        "usernameHelpText": "Username can not contain spaces."
+    },
+    "location": {
+        "emptyListText": "No locations found. Start by creating one using the \"+\" button",
+        "uploadImageBtnLabel": "Click me to upload image",
+        "creationErrorToast": "An error occured while trying to create the location.",
+        "creationSuccessToast": "The location was created."
+    }
+}

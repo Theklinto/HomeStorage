@@ -97,16 +97,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         string secret = config["JWTSettings:Secret"]
             ?? throw new ArgumentNullException("JWT Secret not set!", "JWTSettings:Secret");
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = config["JWTSettings:Issuer"],
-            ValidAudience = config["JWTSettings:Issuer"],
+            //ValidIssuer = config["JWTSettings:Issuer"],
+            //ValidAudience = config["JWTSettings:ValidAudience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
         };
+
     });
 
 
