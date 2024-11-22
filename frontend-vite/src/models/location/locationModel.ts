@@ -1,6 +1,6 @@
-export class LocationModel{
-    public locationId: string | null = null;
-    public name: string | null = null;
-    public description: string | null = null;
-    public imageId: string | null = null;
+export class LocationModel {
+    public locationId: string | undefined;
+    public name: string = "";
+    public description: string | undefined;
+    public imageId: string | undefined;
 }

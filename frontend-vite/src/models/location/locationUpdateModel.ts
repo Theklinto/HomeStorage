@@ -1,5 +1,5 @@
-import { LocationModel } from "./LocationModel";
+import { LocationModel } from "./locationModel";
 
 export class LocationUpdateModel extends LocationModel {
-    public newImage: File | null = null;
+    public newImage: File | undefined;
 }

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import LoginView from "./views/auth/LoginView.vue";
+import { Toast } from "primevue";
 import "./styles/main.scss";
 import "primeicons/primeicons.css";
 </script>
 
 <template>
-    <LoginView />
+    <Toast position="bottom-right"/>
+    <RouterView />
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+@use "./styles/styles";
+
+</style>

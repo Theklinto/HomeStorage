@@ -1,6 +1,7 @@
 import { useRouter } from "vue-router";
-import { useAuthenticationStore } from "../stores/AuthenticationStore";
+import { useAuthenticationStore } from "../stores/authenticationStore";
 import { BaseService } from "./BaseService";
+import { Router } from "../Routing";
 
 export abstract class FetchService extends BaseService {
     protected _authStore = useAuthenticationStore();
@@ -27,7 +28,6 @@ export abstract class FetchService extends BaseService {
             fetch(url, {
                 method: fetchModel.method,
                 mode: "cors",
-                credentials: "include",
                 headers: [["Authorization", `Bearer ${this._authStore.value.token}`]],
                 body: fetchModel.body ? formData : undefined,
             })
@@ -54,7 +54,7 @@ export abstract class FetchService extends BaseService {
                         if (response.status == 401) {
                             this._authStore.value.token = "";
                             this._authStore.value.tokenExpiration = "";
-                            useRouter().replace({ name: "auth.login" });
+                            Router.replace({ name: "auth.login" });
                         }
 
                         reject(response);
@@ -92,36 +92,4 @@ export class FetchModel {
     body: any;
     params: Record<string, string> = {};
     requiresAuth = true;
-}
-
-export class ParamCollection {
-    constructor(params: Param[]) {
-        this.params = params;
-    }
-    params;
-
-    public getParamString() {
-        let paramString = "";
-        if (this.params.length > 0) {
-            paramString = this.params.join("&");
-        }
-        return paramString.length > 0 ? `?${paramString}` : paramString;
-    }
-}
-
-export class Param {
-    constructor(key: string, value: string) {
-        this.key = key;
-        this.value = value;
-    }
-    key;
-    value;
-
-    getKeyValuePair() {
-        if (this.key != "" && this.value != "") {
-            return `${this.key}=${this.value}`;
-        }
-        return "";
-    }
-    public toString = this.getKeyValuePair;
 }

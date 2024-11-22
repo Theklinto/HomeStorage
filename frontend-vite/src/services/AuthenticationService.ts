@@ -29,7 +29,6 @@ export class AuthenticationService extends FetchService {
             await this.fetchData<void>(
                 new FetchModel(this.register.name, "auth/register", "POST", { body: model })
             );
-            debugger;
             return Promise.resolve(true);
         } catch (e) {
             return Promise.resolve(false);
@@ -41,10 +40,10 @@ export class AuthenticationService extends FetchService {
         this._authStore.value.tokenExpiration = tokenModel.expiration;
     }
 
-    isAuthenticated(): boolean {
+    get isAuthenticated(): boolean {
         return (
             this._authStore.value.token !== "" &&
-            new Date() > new Date(this._authStore.value.tokenExpiration)
+            new Date() < new Date(this._authStore.value.tokenExpiration)
         );
     }
 }
