@@ -90,12 +90,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { RegisterModel } from "../../models/authentication/registerModel";
-import { AuthenticationService } from "../../services/AuthenticationService";
+import { RegisterModel } from "@models/authentication/registerModel";
+import { AuthenticationService } from "@services/AuthenticationService";
 import { useRouter } from "vue-router";
 import { Button, FloatLabel, Fluid, InputText, Message, useToast } from "primevue";
-import BoxIcon from "../../components/icons/BoxIcon.vue";
-import { useTranslator } from "../../translation/localization";
+import { useTranslator } from "@translation/localization";
+import BoxIcon from "@assets/icons/BoxIcon.vue";
 
 const isLoading = ref(false);
 const registerModel = ref(new RegisterModel());
@@ -114,17 +114,17 @@ async function register() {
 
         toast.add({
             severity: "success",
-            summary: "User created",
-            detail: "The user was successfully created.",
+            summary: t("authentication.userCreatedToastSummary"),
+            detail: t("authentication.userCreatedToastDetail"),
             life: 3000,
         });
 
-        router.replace({name: "auth."})
+        router.replace({ name: "auth." });
     } catch {
         toast.add({
             severity: "error",
-            summary: "User was not created",
-            detail: "Could not create the user. Please try again.",
+            summary: t("authentication.userNotCreatedToastSummary"),
+            detail: t("authentication.userNotCreatedToastDetail"),
             life: 3000,
         });
     } finally {

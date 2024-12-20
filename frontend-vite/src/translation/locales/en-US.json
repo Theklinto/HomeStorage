@@ -3,7 +3,8 @@
         "homestorageTitle": "HomeStorage",
         "nameFieldLabel": "Name",
         "descriptionFieldLabel": "Description",
-        "createBtnLabel": "Create"
+        "createBtnLabel": "Create",
+        "updateBtnLabel": "Update"
     },
     "authentication": {
         "loginBtnLabel": "Login",
@@ -12,12 +13,23 @@
         "passwordFieldLabel": "Password",
         "emailFieldLabel": "Email",
         "toLoginBtnLabel": "Go to login",
-        "usernameHelpText": "Username can not contain spaces."
+        "usernameHelpText": "Username can not contain spaces.",
+        "userCreatedToastSummary": "User created",
+        "userCreatedToastDetail": "The yser was The user was successfully created.",
+        "userNotCreatedToastSummary": "User was not created",
+        "userNotCreatedToastDetail": "Could not create the user. Please try again."
     },
     "location": {
         "emptyListText": "No locations found. Start by creating one using the \"+\" button",
         "uploadImageBtnLabel": "Click me to upload image",
         "creationErrorToast": "An error occured while trying to create the location.",
-        "creationSuccessToast": "The location was created."
+        "creationSuccessToast": "The location was created.",
+        "locationNameTooShortErrorText": "Location name should be atleast 3 characters.",
+        "createLocationHeader": "New location",
+        "editLocationHeader": "Edit location",
+        "locationFetchErrorSummary": "An error occured while fetching the location",
+        "locationUpdateErrorToastSummary": "An error occured while updated the location",
+        "updateSuccessToastSummary": "The location was updated",
+        "manageUsersBtnLabel": "Manage users"
     }
 }

@@ -20,54 +20,52 @@ export abstract class FetchService extends BaseService {
             }
         }
         //Load paramcollection
-        return new Promise<expectedModel>((resolve, reject) => {
-            const url = new URL(fetchModel.relativePath, FetchService.baseUrl);
-            Object.entries(fetchModel.params).forEach((param) => {
-                url.searchParams.append(param[0], param[1]);
-            });
-            fetch(url, {
-                method: fetchModel.method,
-                mode: "cors",
-                headers: [["Authorization", `Bearer ${this._authStore.value.token}`]],
-                body: fetchModel.body ? formData : undefined,
-            })
-                .then(async (response) => {
-                    const responseText = await response.text();
-                    if (response.ok) {
-                        if (responseText) {
-                            JSON.parse(responseText);
-                            const fetchedModel = JSON.parse(responseText) as expectedModel;
-                            this.logResponse(fetchModel.callerFunction, {
-                                success: true,
-                                response: response,
-                            });
-                            resolve(fetchedModel);
-                        }
-
-                        resolve(undefined as unknown as expectedModel);
-                    } else {
-                        this.logResponse(fetchModel.callerFunction, {
-                            success: false,
-                            response: response,
-                        });
-
-                        if (response.status == 401) {
-                            this._authStore.value.token = "";
-                            this._authStore.value.tokenExpiration = "";
-                            Router.replace({ name: "auth.login" });
-                        }
-
-                        reject(response);
-                    }
-                })
-                .catch((error) => {
-                    this.logResponse(fetchModel.callerFunction, {
-                        success: false,
-                        response: error,
-                    });
-                    reject(error);
-                });
+        const url = new URL(fetchModel.relativePath, FetchService.baseUrl);
+        Object.entries(fetchModel.params).forEach((param) => {
+            url.searchParams.append(param[0], param[1]);
         });
+
+        const response = await fetch(url, {
+            method: fetchModel.method,
+            mode: "cors",
+            headers: [["Authorization", `Bearer ${this._authStore.value.token}`]],
+            body: fetchModel.body ? formData : undefined,
+        });
+
+        try {
+            const responseText = await response.text();
+            if (response.ok) {
+                if (responseText) {
+                    const fetchedModel = JSON.parse(responseText) as expectedModel;
+                    this.logResponse(fetchModel.callerFunction, {
+                        success: true,
+                        response: response,
+                    });
+                    return fetchedModel;
+                }
+
+                throw "No reponse";
+            } else {
+                this.logResponse(fetchModel.callerFunction, {
+                    success: false,
+                    response: response,
+                });
+
+                if (response.status == 401) {
+                    this._authStore.value.token = "";
+                    this._authStore.value.tokenExpiration = "";
+                    Router.replace({ name: "auth.login" });
+                }
+
+                throw response;
+            }
+        } catch (error) {
+            this.logResponse(fetchModel.callerFunction, {
+                success: false,
+                response: error,
+            });
+            throw error;
+        }
     }
 }
 
