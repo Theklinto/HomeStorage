@@ -3,7 +3,7 @@
         <div class="container">
             <div class="row">
                 <div class="col d-flex align-items-center flex-column gap-2">
-                    <BoxIcon />
+                     <BoxIcon/>
                     <h1>{{ t("common.homestorageTitle") }}</h1>
                 </div>
             </div>
@@ -66,12 +66,12 @@ import { onBeforeMount, ref } from "vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
-import BoxIcon from "../../components/icons/BoxIcon.vue";
 import Fluid from "primevue/fluid";
-import { LoginModel } from "../../models/authentication/loginModel";
-import { AuthenticationService } from "../../services/AuthenticationService";
+import { LoginModel } from "@models/authentication/loginModel";
+import { AuthenticationService } from "@services/AuthenticationService";
 import { useRouter } from "vue-router";
-import { useTranslator } from "../../translation/localization";
+import { useTranslator } from "@translation/localization";
+import BoxIcon from "@assets/icons/BoxIcon.vue";
 
 const authService = new AuthenticationService();
 const loginModel = ref<LoginModel>(new LoginModel());

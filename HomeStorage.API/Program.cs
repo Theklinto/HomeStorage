@@ -1,21 +1,14 @@
+using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Logic;
+using HomeStorage.Logic.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using HomeStorage.Logic.DbContext;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using System;
-using HomeStorage.Logic.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration config = new ConfigurationBuilder()
@@ -176,11 +169,17 @@ app.UseCookiePolicy(new()
 #else
 #endif
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseDeveloperExceptionPage();
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapFallbackToFile("/index.html");
 
 app.Run();

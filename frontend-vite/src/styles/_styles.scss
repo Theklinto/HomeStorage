@@ -21,3 +21,28 @@ fieldset{
 .p-toast{
     max-width: calc(100vw - 40px);
 }
+
+.p-dataview.containerless{
+    border: unset;
+    & > .p-dataview-content{
+        background: unset;
+    }
+}
+.p-panel{
+    &.headerless > .p-panel-header{
+        display: none;
+    }
+    &.fluid {
+        & > .p-panel-content-container > .p-panel-content{
+            padding: 0;
+        }
+        & > .p-panel-header{
+            padding: 0;
+        }
+    }
+    &.no-toggle{
+        & > .p-panel-header > .p-panel-header-actions{
+            display: none;
+        }
+    }
+}

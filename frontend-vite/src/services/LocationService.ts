@@ -28,15 +28,9 @@ export class LocationService extends FetchService {
     }
 
     async fetchLocation(locationId: string): Promise<LocationModel> {
-        return new Promise<LocationModel>((resolve) => {
-            this.fetchData<LocationModel>(
-                new FetchModel(
-                    this.fetchLocation.name,
-                    `location/GetLocation/${locationId}`,
-                    "GET"
-                )
-            ).then((fetchedModel) => resolve(fetchedModel));
-        });
+        return this.fetchData<LocationModel>(
+            new FetchModel(this.fetchLocation.name, `location/GetLocation/${locationId}`, "GET")
+        );
     }
 
     async updateLocation(locationModel: LocationUpdateModel): Promise<boolean> {

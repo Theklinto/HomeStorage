@@ -11,6 +11,7 @@ class Routes {
     static routes: RouteRecordRaw[] = [
         {
             path: "/locations",
+            redirect: {name: "locations.list"},
             children: [
                 {
                     path: "list",
@@ -22,6 +23,7 @@ class Routes {
                     path: "edit/:locationId?",
                     name: "locations.edit",
                     component: LocationEditView,
+                    props: true
                     // meta: { navbar: new EmptyNavbar() },
                 },
                 // {

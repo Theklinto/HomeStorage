@@ -1,16 +1,20 @@
 <template>
-    <DefaultLayout
-        header-label="Locations"
-        :action="{
-            command: () => router.push({ name: 'locations.edit' }),
-            icon: 'pi pi-plus',
-            severity: 'success',
-        }"
-    >
+    <DefaultLayout header-label="Locations" :action="{
+        command: () => router.push({ name: 'locations.edit' }),
+        icon: 'pi pi-plus',
+        severity: 'success',
+    }" :is-loading="isLoading">
+        <template #loading></template>
         <template #content>
-            <DataView :value="locationList" :data-key="() => keyOf<LocationListModel>('locationId')">
+            <DataView class="containerless" :value="locationList" :data-key="keyOf<LocationListModel>('locationId')">
                 <template #empty>
                     <Message severity="secondary">{{ t("location.emptyListText") }}</Message>
+                </template>
+                <template #list="slotProps">
+                    <div class="d-flex flex-column gap-2">
+                        <LocationListElement v-for="location in (slotProps.items as LocationListModel[])"
+                            :location="location" />
+                    </div>
                 </template>
             </DataView>
         </template>
@@ -21,12 +25,13 @@
 import { Ref, onMounted, ref } from "vue";
 import { LocationService } from "../../services/LocationService";
 import { LocationListModel } from "../../models/location/locationListModel";
-import { ImageService } from "../../services/ImageService";
-import { Card, DataView, Message, VirtualScroller, VirtualScrollerItemOptions } from "primevue";
+import { DataView, Message, Panel } from "primevue";
 import { useRouter } from "vue-router";
 import DefaultLayout from "../../components/layout/DefaultLayout.vue";
 import { useTranslator } from "../../translation/localization";
 import { keyOf } from "../../utilities";
+import { ImageService } from "@services/ImageService";
+import LocationListElement from "@components/location/LocationListElement.vue";
 
 const locationList: Ref<LocationListModel[]> = ref([]);
 const locationService = new LocationService();
