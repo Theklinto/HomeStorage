@@ -4,8 +4,9 @@ import { AuthenticationService } from "./services/AuthenticationService";
 import LoginView from "./views/auth/LoginView.vue";
 import { App } from "vue";
 import RegisterView from "./views/auth/RegisterView.vue";
-import LocationListView from "./views/location/LocationListView.vue";
-import LocationEditView from "./views/location/LocationEditView.vue";
+import LocationListView from "@views/location/ListView.vue";
+import LocationEditView from "@views/location/EditView.vue";
+import LocationUserManagmentView from "@/views/location/UserManagmentView.vue";
 
 class Routes {
     static routes: RouteRecordRaw[] = [
@@ -23,9 +24,15 @@ class Routes {
                     path: "edit/:locationId?",
                     name: "locations.edit",
                     component: LocationEditView,
-                    props: true
-                    // meta: { navbar: new EmptyNavbar() },
+                    props: true,
                 },
+                {
+                    path: "edit/:locationId/users",
+                    name: "locations.users",
+                    props: true,
+                    component: LocationUserManagmentView
+                }
+
                 // {
                 //     path: "location/:locationId",
                 //     name: "locations.location",

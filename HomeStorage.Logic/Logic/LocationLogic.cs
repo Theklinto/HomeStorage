@@ -2,6 +2,7 @@
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
+using HomeStorage.Logic.Exceptions;
 using HomeStorage.Logic.Models.LocationModels;
 using HomeStorage.Logic.Services;
 using Microsoft.AspNetCore.Identity;
@@ -158,40 +159,42 @@ namespace HomeStorage.Logic.Logic
             return (DTOService.AsDTO<LocationModel, Location>(location), true);
         }
 
-        public async Task<List<LocationUserModel>?> GetLocationUsersAsync(Guid locationId)
+        public async Task<List<LocationUserListModel>> GetLocationUsersAsync(Guid locationId)
+        {
+            if (await CheckUserAccess<Location>(locationId, EAccess.LocationAdmin) is false)
+                throw new NotAuthorizedException("You don't have the required access level");
+
+            IdentityUser user = await GetCurrentUser();
+
+            List<LocationUser> users = _db.LocationUsers
+                .Where(x => x.LocationId == locationId)
+                .ToList();
+
+            return users.Select(DTOService.AsDTO<LocationUserListModel, LocationUser>).ToList();
+        }
+
+        public async Task<LocationUserModel?> AddUserToLocation(Guid locationId, string email)
         {
             if (await CheckUserAccess<Location>(locationId, EAccess.LocationAdmin) is false)
                 return null;
 
-            Location? location = await _db.Locations
-                .FirstOrDefaultAsync(x => x.LocationId == locationId);
-
-            if (location is null)
-                return null;
-
-            return location.LocationUsers
-                .Select(DTOService.AsDTO<LocationUserModel, LocationUser>)
-                .ToList();
-        }
-
-        public async Task<LocationUserModel?> AddUserToLocation(LocationUserModel model)
-        {
-            if (await CheckUserAccess<Location>(model.LocationId, EAccess.LocationAdmin) is false)
-                return null;
-
-            Location? location = await _db.Locations
-                .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
 
             //Find user by email
-            IdentityUser? addedUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
+            IdentityUser? addedUser = await _userManager.FindByEmailAsync(email);
+            if (addedUser is null)
+                return null;
 
-            if (location is null || addedUser is null)
+            Location? location = await _db.Locations
+                .Include(x => x.LocationUsers.Where(x => x.UserId == addedUser.Id))
+                .FirstOrDefaultAsync(x => x.LocationId == locationId);
+
+            if (location is null || location.LocationUsers.Count > 0)
                 return null;
 
             LocationUser locationUser = new()
             {
                 IsLoactionAdmin = true,
-                LocationId = model.LocationId,
+                LocationId = locationId,
                 UserId = addedUser.Id,
             };
             location.LocationUsers.Add(locationUser);

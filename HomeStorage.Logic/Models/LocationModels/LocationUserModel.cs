@@ -1,10 +1,5 @@
 ﻿using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HomeStorage.Logic.Models.LocationModels
 {
@@ -15,6 +10,8 @@ namespace HomeStorage.Logic.Models.LocationModels
         public string Email { get; set; } = string.Empty;
         public Guid UserId { get; set; }
         public Guid LocationId { get; set; }
+        public bool IsAdmin { get; set; } = false;
+        public bool IsOwner { get; set; } = false;
 
         public static LocationUserModel AsDTO(LocationUser source)
         {
@@ -24,7 +21,9 @@ namespace HomeStorage.Logic.Models.LocationModels
                 LocationId = source.LocationId,
                 LocationUserId = source.LocationUserId,
                 UserId = Guid.Parse(source.UserId),
-                Username = source.User?.NormalizedUserName ?? string.Empty,
+                Username = source.User?.UserName ?? string.Empty,
+                IsAdmin = source.IsLoactionAdmin,
+                IsOwner = source.IsLocationOwner
             };
         }
     }

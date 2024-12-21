@@ -55,8 +55,7 @@
                         </div>
                         <div v-if="existingLocation" class="row">
                             <div class="col-12">
-                                <!-- //TODO: Add manage users page -->
-                                <Button type="button" severity="secondary" fluid
+                                <Button type="button" severity="secondary" fluid @click="openUserManagement"
                                     :label="t('location.manageUsersBtnLabel')" icon="pi pi-users" />
                             </div>
                         </div>
@@ -187,6 +186,10 @@ async function updateLocation() {
 
 async function submitForm() {
     existingLocation.value ? updateLocation() : createLocation();
+}
+
+function openUserManagement() {
+    router.push({ name: "locations.users", params: { locationId: props.locationId } })
 }
 </script>
 
