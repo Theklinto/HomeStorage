@@ -2,13 +2,14 @@
     <Panel class="fluid rounded no-toggle">
         <template #header>
             <div :onclick="openLocation" ref="panel-header-ref" class="d-flex location-list-item">
-                <div class="col-4 rounded-start overflow-hidden d-flex align-items-center">
+                <div v-if="location.imageId"
+                    class=" rounded-start overflow-hidden d-flex align-items-center location-image">
                     <img class="object-fit-cover w-100" :src="ImageService.getImageById(location.imageId)" />
                 </div>
-                <div class="col-8 rounded-end overflow-hidden">
+                <div class="rounded-end overflow-hidden location-info">
                     <Message class="rounded-0 h-100" severity="secondary">
                         <h3 class="p-0 m-0">{{ location.name }}</h3>
-                        <span>{{ location.description }}</span>
+                        <span class="location-text">{{ location.description }}</span>
                     </Message>
                 </div>
             </div>
@@ -42,7 +43,7 @@ function editLocation() {
 
 
 watch(panelHeaderRef, (ref) => {
-    if (ref) {
+    if (ref && props.location.allowUserManagment) {
         AttachOnHoldHandler(ref, editLocation);
     }
 })
@@ -54,9 +55,23 @@ watch(panelHeaderRef, (ref) => {
 .location-list-item {
     //TODO: Fix fixed height or make break points
     height: 100px;
-}
 
-img {
-    aspect-ratio: 1;
+    .location-info {
+        flex: 8;
+
+        .location-text {
+            display: block;
+            overflow: hidden;
+            max-height: 3lh;
+        }
+    }
+
+    .location-image {
+        flex: 4;
+    }
+
+    img {
+        aspect-ratio: 1;
+    }
 }
 </style>

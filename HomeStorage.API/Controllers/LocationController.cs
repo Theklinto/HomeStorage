@@ -1,13 +1,9 @@
-﻿using HomeStorage.DataAccess.Entities;
-using HomeStorage.Logic.Logic;
+﻿using HomeStorage.Logic.Logic;
+using HomeStorage.Logic.Models.LocationModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using HomeStorage.Logic.Models.LocationModels;
 
 namespace HomeStorage.API.Controllers
 {
@@ -67,7 +63,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LocationModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateLocation([FromForm]LocationUpdateModel model)
+        public async Task<IActionResult> UpdateLocation([FromForm] LocationUpdateModel model)
         {
             LocationModel? updatedLocation = await _locationLogic.UpdateLocation(model);
 
@@ -99,10 +95,7 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetLocationUsers([FromQuery] Guid locationId)
         {
-            List<LocationUserModel>? locationUsers = await _locationLogic.GetLocationUsersAsync(locationId);
-
-            if(locationUsers is null)   
-                return BadRequest();
+            List<LocationUserListModel> locationUsers = await _locationLogic.GetLocationUsersAsync(locationId);
 
             return Ok(Json(locationUsers).Value);
         }
@@ -111,9 +104,9 @@ namespace HomeStorage.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LocationUserModel))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddLocationUser([FromForm] LocationUserModel model)
+        public async Task<IActionResult> AddLocationUser([FromQuery] Guid locationId, [FromQuery] string email)
         {
-            LocationUserModel? locationUser = await _locationLogic.AddUserToLocation(model);
+            LocationUserModel? locationUser = await _locationLogic.AddUserToLocation(locationId, email);
 
             if (locationUser is null)
                 return BadRequest();

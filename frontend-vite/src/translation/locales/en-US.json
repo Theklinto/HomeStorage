@@ -30,6 +30,18 @@
         "locationFetchErrorSummary": "An error occured while fetching the location",
         "locationUpdateErrorToastSummary": "An error occured while updated the location",
         "updateSuccessToastSummary": "The location was updated",
-        "manageUsersBtnLabel": "Manage users"
+        "manageUsersBtnLabel": "Manage users",
+        "manageUsersHeader": "Manage users for location",
+        "manageUsersNoAccessSummary": "Missing access",
+        "manageUsersNoAccessDetails": "You don't have access to manage this location.",
+        "userListUsernameColHeader": "Username",
+        "userListEmailColHeader": "Email",
+        "userListRemoveUserFailedSummary": "Failed to remove user",
+        "userListRemoveUserFiledDetail": "Failed to remove the user from this location. Try again.",
+        "UserManagement": {
+            "addUserLabel": "Add User",
+            "emailInputPlaceholder": "Email",
+            "UserNotAddedErrorSummary": "User not added"
+        }
     }
 }

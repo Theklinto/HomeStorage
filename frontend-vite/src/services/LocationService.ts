@@ -1,7 +1,9 @@
+import { LocationUserModel } from "@/models/locationUser/locationUserModel";
 import { LocationListModel } from "../models/location/locationListModel";
 import { LocationModel } from "../models/location/locationModel";
 import { LocationUpdateModel } from "../models/location/locationUpdateModel";
 import { FetchModel, FetchService } from "./FetchService";
+import { LocationUserListModel } from "@/models/location/locationUserListModel";
 
 export class LocationService extends FetchService {
     constructor() {
@@ -57,5 +59,31 @@ export class LocationService extends FetchService {
                 .then(() => resolve(true))
                 .catch(() => resolve(false));
         });
+    }
+
+    async getLocationUsers(locationId: string): Promise<LocationUserListModel[]> {
+        return this.fetchData<LocationUserListModel[]>(
+            new FetchModel(this.getLocationUsers.name, "location/users", "GET", {
+                params: { locationId: locationId },
+            })
+        );
+    }
+
+    async deleteLocationUser(locationUserId: string): Promise<boolean> {
+        const result = this.fetchData<LocationUserModel>(
+            new FetchModel(this.deleteLocation.name, "location/users", "DELETE", {
+                params: { locationUserId: locationUserId },
+            })
+        );
+
+        return !!result;
+    }
+
+    async addLocationUser(locationId: string, email: string): Promise<LocationUserModel> {
+        return this.fetchData<LocationUserModel>(
+            new FetchModel(this.addLocationUser.name, "location/users", "POST", {
+                params: { locationId: locationId, email: email },
+            })
+        );
     }
 }
