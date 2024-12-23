@@ -13,11 +13,10 @@
                         <Fluid>
                             <FloatLabel variant="on">
                                 <InputText
-                                    required
                                     :disabled="isLoading"
                                     id="username"
-                                    v-model="registerModel.username"
-                                    :pattern="/[^ ]*/g.source"
+                                    v-model="v$.username.$model"
+                                    @blur="v$.username.$touch"
                                 />
                                 <label for="username">{{
                                     t("authentication.usernameFieldLabel")
@@ -25,10 +24,10 @@
                             </FloatLabel>
                         </Fluid>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12" v-if="v$.username.$error">
                         <Fluid>
-                            <Message severity="secondary">{{
-                                t("authentication.usernameHelpText")
+                            <Message severity="error">{{
+                                v$.username.$errors[0].$message
                             }}</Message>
                         </Fluid>
                     </div>
@@ -36,28 +35,40 @@
                         <Fluid>
                             <FloatLabel variant="on">
                                 <InputText
-                                    required
                                     id="email"
                                     type="email"
-                                    v-model="registerModel.email"
+                                    v-model="v$.email.$model"
+                                    @blur="v$.email.$touch"
                                 />
                                 <label for="email">{{ t("authentication.emailFieldLabel") }}</label>
                             </FloatLabel>
+                        </Fluid>
+                    </div>
+                    <div class="col-12" v-if="v$.email.$error">
+                        <Fluid>
+                            <Message severity="error">{{ v$.email.$errors[0].$message }}</Message>
                         </Fluid>
                     </div>
                     <div class="col-12">
                         <Fluid>
                             <FloatLabel variant="on">
                                 <InputText
-                                    required
                                     id="password"
                                     type="password"
-                                    v-model="registerModel.password"
+                                    v-model="v$.password.$model"
+                                    @blur="v$.password.$touch"
                                 />
                                 <label for="password">{{
                                     t("authentication.passwordFieldLabel")
                                 }}</label>
                             </FloatLabel>
+                        </Fluid>
+                    </div>
+                    <div class="col-12" v-if="v$.password.$error">
+                        <Fluid>
+                            <Message severity="error">{{
+                                v$.password.$errors[0].$message
+                            }}</Message>
                         </Fluid>
                     </div>
                     <div class="col">
@@ -89,25 +100,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { RegisterModel } from "@models/authentication/registerModel";
-import { AuthenticationService } from "@services/AuthenticationService";
+import { reactive, ref } from "vue";
+import { RegisterModel } from "@/models/authentication/registerModel";
+import { AuthenticationService } from "@/services/AuthenticationService";
 import { useRouter } from "vue-router";
 import { Button, FloatLabel, Fluid, InputText, Message, useToast } from "primevue";
-import { useTranslator } from "@translation/localization";
-import BoxIcon from "@assets/icons/BoxIcon.vue";
+import { useTranslator } from "@/translation/localization";
+import BoxIcon from "@/assets/icons/BoxIcon.vue";
+import { computedValidators } from "@/validators/type";
+import {
+    emailValidator,
+    minLengthValidator,
+    noSpacesValidator,
+    requiredValidator,
+} from "@/validators/validators";
+import useVuelidate from "@vuelidate/core";
 
 const isLoading = ref(false);
-const registerModel = ref(new RegisterModel());
+const registerModel = reactive(new RegisterModel());
 const authenticationService = new AuthenticationService();
 const router = useRouter();
 const toast = useToast();
 const { t } = useTranslator();
 
+const validationRules = computedValidators<RegisterModel>({
+    email: {
+        requiredValidator: requiredValidator(t("authentication.emailFieldLabel")),
+        emailValidator: emailValidator(t("authentication.emailFieldLabel")),
+    },
+    password: {
+        requiredValidator: requiredValidator(t("authentication.passwordFieldLabel")),
+        minLengthValidator: minLengthValidator(6, t("authentication.passwordFieldLabel")),
+    },
+    username: {
+        requiredValidator: requiredValidator(t("authentication.usernameFieldLabel")),
+        minLengthValidator: minLengthValidator(6, t("authentication.usernameFieldLabel")),
+        noSpacesValidator: noSpacesValidator(t("authentication.usernameFieldLabel")),
+    },
+});
+
+const v$ = useVuelidate(validationRules, registerModel);
+
 async function register() {
+    await v$.value.$validate();
+    if (v$.value.$error) {
+        return;
+    }
+
     isLoading.value = true;
     try {
-        const created = await authenticationService.register(registerModel.value);
+        const created = await authenticationService.register(registerModel);
         if (!created) {
             throw "";
         }
@@ -119,7 +161,7 @@ async function register() {
             life: 3000,
         });
 
-        router.replace({ name: "auth." });
+        router.replace({ name: "auth.login" });
     } catch {
         toast.add({
             severity: "error",

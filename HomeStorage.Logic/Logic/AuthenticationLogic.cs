@@ -1,5 +1,6 @@
-﻿using HomeStorage.Logic.Models.AuthenticationModels;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using HomeStorage.DataAccess.UserEntities;
+using HomeStorage.Logic.Authentication;
+using HomeStorage.Logic.Models.AuthenticationModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -9,31 +10,22 @@ using System.Text;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class AuthenticationLogic
+    public class AuthenticationLogic(HomeStorageUserManager userManager, IConfiguration config, HomeStorageSignInManager signInManager)
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
-
-
-        public AuthenticationLogic(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
-        {
-            _userManager = userManager;
-            _configuration = configuration;
-        }
+        private readonly HomeStorageUserManager _userManager = userManager;
+        private readonly IConfiguration _config = config;
+        private readonly HomeStorageSignInManager _signInManager = signInManager;
 
         public async Task<bool> Register(RegisterModel model)
         {
-            IdentityUser? user = await _userManager.FindByEmailAsync(model.Email);
-            if (user is not null)
-                return false;
 
-            user = new()
+            HomeStorageUser newUser = new()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = model.Username,
             };
-            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+
+            IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
 
             if (result.Succeeded is false)
                 return false;
@@ -43,23 +35,30 @@ namespace HomeStorage.Logic.Logic
 
         public async Task<TokenModel?> LoginAsync(LoginModel loginModel)
         {
-            IdentityUser? user = await _userManager.FindByEmailAsync(loginModel.Email);
+
+            HomeStorageUser? user = await _userManager.FindByEmailAsync(loginModel.Email);
             if (user is null)
                 return null;
 
-            Claim[] claims = new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-            };
+            SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, loginModel.Password, false);
+            if (!result.Succeeded)
+                return null;
 
-            DateTime expiration = DateTime.Now.AddDays(_configuration.GetValue<int>("JWTSettings:Expiration"));
 
-            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("JWTSettings:Secret")!));
+
+            Claim[] claims =
+            [
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email),
+            ];
+
+            DateTime expiration = DateTime.Now.AddDays(_config.GetValue<int>("JWTSettings:Expiration"));
+
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_config.GetValue<string>("JWTSettings:Secret")!));
             SigningCredentials signIn = new(key, SecurityAlgorithms.HmacSha256);
             JwtSecurityToken token = new(
-                _configuration["JWTSettings:Issuer"],
-                _configuration["JWTSettings:Audience"],
+                _config["JWTSettings:Issuer"],
+                _config["JWTSettings:Audience"],
                 claims,
                 expires: expiration,
                 signingCredentials: signIn);
@@ -69,36 +68,6 @@ namespace HomeStorage.Logic.Logic
                 Expiration = expiration,
                 Token = new JwtSecurityTokenHandler().WriteToken(token)
             };
-        }
-
-        public async Task<ClaimsIdentity?> CookieLoginAsync(string authHeader)
-        {
-            // Get credentials
-            string encodedEmailPassword = authHeader[("Basic ".Length - 1)..].Trim();
-            string emailPassword = Encoding
-            .GetEncoding("iso-8859-1")
-            .GetString(Convert.FromBase64String(encodedEmailPassword));
-
-            // Get email and password
-            int seperatorIndex = emailPassword.IndexOf(':');
-            string email = emailPassword[..seperatorIndex];
-            string password = emailPassword[(seperatorIndex + 1)..];
-
-            IdentityUser? user = await _userManager.FindByEmailAsync(email);
-            if (user is not null && await _userManager.CheckPasswordAsync(user, password))
-            {
-                Claim[] claims = new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                };
-
-                ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                return identity;
-            }
-
-            return null;
         }
     }
 }

@@ -1,11 +1,11 @@
 import { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHashHistory } from "vue-router";
-import { AuthenticationService } from "./services/AuthenticationService";
-import LoginView from "./views/auth/LoginView.vue";
+import { AuthenticationService } from "@/services/AuthenticationService";
+import LoginView from "@/views/auth/LoginView.vue";
 import { App } from "vue";
-import RegisterView from "./views/auth/RegisterView.vue";
-import LocationListView from "@views/location/ListView.vue";
-import LocationEditView from "@views/location/EditView.vue";
+import RegisterView from "@/views/auth/RegisterView.vue";
+import LocationListView from "@/views/location/ListView.vue";
+import LocationEditView from "@/views/location/EditView.vue";
 import LocationUserManagmentView from "@/views/location/UserManagmentView.vue";
 
 class Routes {

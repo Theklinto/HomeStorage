@@ -1,14 +1,13 @@
+using HomeStorage.API.Authentication;
+using HomeStorage.API.ExceptionHandlers;
+using HomeStorage.API.Interfaces;
+using HomeStorage.API.Middleware;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Logic;
 using HomeStorage.Logic.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration config = new ConfigurationBuilder()
@@ -22,9 +21,9 @@ IConfiguration config = new ConfigurationBuilder()
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(oprtions =>
+builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    oprtions.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -68,41 +67,19 @@ builder.Services.AddTransient<ImageLogic>();
 builder.Services.AddTransient<CategoryLogic>();
 builder.Services.AddTransient<ProductLogic>();
 
+
+#region Exception Handlers
+builder.Services.AddTransient<ExceptionMiddleware>();
+builder.Services.AddTransient<IMiddlewareExceptionHandler, NotAuthenticatedExceptionHandler>();
+builder.Services.AddTransient<IMiddlewareExceptionHandler, NotAuthorizedExceptionHandler>();
+#endregion
+
 #endregion
 
 #region Authentication
 
-// For Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<HomeStorageDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddAuthorization(options =>
-{
-    AuthorizationPolicyBuilder policyBuilder = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-        .RequireClaim(ClaimTypes.NameIdentifier)
-        .RequireAuthenticatedUser();
-    options.DefaultPolicy = policyBuilder.Build();
-});
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        string secret = config["JWTSettings:Secret"]
-            ?? throw new ArgumentNullException("JWT Secret not set!", "JWTSettings:Secret");
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            //ValidIssuer = config["JWTSettings:Issuer"],
-            //ValidAudience = config["JWTSettings:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
-        };
-
-    });
+builder.Services.AddHomeStorageIdentity();
+builder.Services.AddHomeStorageAuth(config);
 
 
 //Cors
@@ -172,7 +149,7 @@ app.UseCookiePolicy(new()
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.UseDeveloperExceptionPage();
+app.UseExceptionMiddleware();
 
 app.UseRouting();
 

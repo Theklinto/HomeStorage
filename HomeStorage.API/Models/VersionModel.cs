@@ -1,11 +1,7 @@
 ﻿namespace HomeStorage.API.Models
 {
-    public class VersionModel
+    public class VersionModel(string? version)
     {
-        public VersionModel(string? version)
-        {
-            Version = version ?? string.Empty;
-        }
-        public string Version { get; set; }
+        public string Version { get; set; } = version ?? string.Empty;
     }
 }

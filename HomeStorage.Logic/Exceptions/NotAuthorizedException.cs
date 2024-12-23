@@ -1,8 +1,6 @@
 ﻿namespace HomeStorage.Logic.Exceptions
 {
-    public class NotAuthorizedException : Exception
+    public class NotAuthorizedException(string? message, Exception? innerException = null) : Exception(message, innerException)
     {
-        public NotAuthorizedException(string message) : base(message) { }
-        public NotAuthorizedException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

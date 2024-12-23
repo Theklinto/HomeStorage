@@ -50,7 +50,7 @@
                     <Fluid>
                         <Button
                             :disabled="isLoading"
-                            :label="t('authentication.loginBtnLabel')"
+                            :label="t('authentication.registerBtnLabel')"
                             severity="secondary"
                             @click="router.push({ name: 'auth.register' })"
                         ></Button>
@@ -67,11 +67,11 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
 import Fluid from "primevue/fluid";
-import { LoginModel } from "@models/authentication/loginModel";
-import { AuthenticationService } from "@services/AuthenticationService";
+import { LoginModel } from "@/models/authentication/loginModel";
+import { AuthenticationService } from "@/services/AuthenticationService";
 import { useRouter } from "vue-router";
-import { useTranslator } from "@translation/localization";
-import BoxIcon from "@assets/icons/BoxIcon.vue";
+import { useTranslator } from "@/translation/localization";
+import BoxIcon from "@/assets/icons/BoxIcon.vue";
 
 const authService = new AuthenticationService();
 const loginModel = ref<LoginModel>(new LoginModel());

@@ -1,4 +1,4 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.CategoryEntities;
 using HomeStorage.Logic.Interfaces;
 
 namespace HomeStorage.Logic.Models.CategoryModels

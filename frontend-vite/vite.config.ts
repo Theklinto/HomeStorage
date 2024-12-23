@@ -8,15 +8,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@services": path.resolve(__dirname, "./src/services"),
-            "@models": path.resolve(__dirname, "./src/models"),
-            "@components": path.resolve(__dirname, "./src/components"),
-            "@stores": path.resolve(__dirname, "./src/stores"),
-            "@translation": path.resolve(__dirname, "./src/translation"),
-            "@views": path.resolve(__dirname, "./src/views"),
-            "@assets": path.resolve(__dirname, "./src/assets"),
-            "@interactions": path.resolve(__dirname, "./src/interactions"),
-            "@": path.resolve(__dirname, "./src")
+            "@": path.resolve(__dirname, "./src"),
         },
     },
     plugins: [vue()],

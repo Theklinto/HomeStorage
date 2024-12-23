@@ -1,4 +1,6 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.CategoryEntities;
+using HomeStorage.DataAccess.LocationEntities;
+using HomeStorage.DataAccess.ProductEntities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
@@ -8,16 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class ProductLogic : LogicBase
+    public class ProductLogic(HomeStorageDbContext db, ImageLogic imageLogic, HttpContextService contextService) : LogicBase(contextService, db)
     {
-        private readonly ImageLogic _imageLogic;
-        private readonly LocationLogic _locationLogic;
-        public ProductLogic(HomeStorageDbContext db, LocationLogic locationLogic, ImageLogic imageLogic, HttpContextService contextService)
-            : base(contextService, db)
-        {
-            _locationLogic = locationLogic;
-            _imageLogic = imageLogic;
-        }
+        private readonly ImageLogic _imageLogic = imageLogic;
 
         public async Task<ProductModel?> GetProductAsync(Guid productId)
         {
@@ -34,7 +29,7 @@ namespace HomeStorage.Logic.Logic
             return DTOService.AsDTO<ProductModel, Product>(product);
         }
 
-        public async Task<List<ProductModel>?> GetProductsFromLocationAsync(Guid locationId, string searchExpression)
+        public async Task<List<ProductModel>?> GetProductsFromLocationAsync(Guid locationId)
         {
             if (await CheckUserAccess<Location>(locationId, EAccess.Read) is false)
                 return null;
@@ -49,7 +44,7 @@ namespace HomeStorage.Logic.Logic
                 .ToList();
         }
 
-        public async Task<List<ProductModel>?> GetProductFromCategoryAsync(Guid categoryId, string searchExpression)
+        public async Task<List<ProductModel>?> GetProductFromCategoryAsync(Guid categoryId)
         {
             if (await CheckUserAccess<Category>(categoryId, EAccess.Read) is false)
                 return null;
@@ -57,7 +52,6 @@ namespace HomeStorage.Logic.Logic
             List<Product> products = await _db.Categories
                 .Where(x => x.CategoryId == categoryId)
                 .SelectMany(x => x.Products)
-                .Where(Product.ContainsSearchString(searchExpression))
                 .ToListAsync();
 
             return products
@@ -82,6 +76,10 @@ namespace HomeStorage.Logic.Logic
                 .Where(x => categoryIds.Contains(x.CategoryId))
                 .ToListAsync();
 
+            Guid? imageId = model.NewImage is not null ?
+                    await _imageLogic.CreateImageAsync(model.NewImage) :
+                    null;
+
             Product product = new()
             {
                 ProductId = Guid.NewGuid(),
@@ -91,9 +89,7 @@ namespace HomeStorage.Logic.Logic
                 ExpirationDate = model.ExpirationDate,
                 LocationId = location.LocationId,
                 Categories = categories,
-                ImageId = model.NewImage is not null ?
-                    await _imageLogic.CreateImageAsync(model.NewImage) :
-                    null,
+                ImageId = imageId,
             };
 
             await _db.Products.AddAsync(product);
