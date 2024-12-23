@@ -1,7 +1,8 @@
 ﻿using HomeStorage.Logic.Services;
-using HomeStorage.DataAccess.Entities;
 using HomeStorage.Logic.Models.CategoryModels;
 using HomeStorage.Logic.Interfaces;
+using HomeStorage.DataAccess.CategoryEntities;
+using HomeStorage.DataAccess.ProductEntities;
 
 namespace HomeStorage.Logic.Models.ProductModels
 {

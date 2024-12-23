@@ -4,7 +4,8 @@
         "nameFieldLabel": "Name",
         "descriptionFieldLabel": "Description",
         "createBtnLabel": "Create",
-        "updateBtnLabel": "Update"
+        "updateBtnLabel": "Update",
+        "Email": "Email"
     },
     "authentication": {
         "loginBtnLabel": "Login",
@@ -15,7 +16,7 @@
         "toLoginBtnLabel": "Go to login",
         "usernameHelpText": "Username can not contain spaces.",
         "userCreatedToastSummary": "User created",
-        "userCreatedToastDetail": "The yser was The user was successfully created.",
+        "userCreatedToastDetail": "The user was The user was successfully created.",
         "userNotCreatedToastSummary": "User was not created",
         "userNotCreatedToastDetail": "Could not create the user. Please try again."
     },
@@ -43,5 +44,11 @@
             "emailInputPlaceholder": "Email",
             "UserNotAddedErrorSummary": "User not added"
         }
+    },
+    "validators": {
+        "invalidEmail": "{fieldname} is invalid.",
+        "required": "{fieldname} is required.",
+        "minLength": "{fieldname} should be atleast {length} characters.",
+        "noSpaces": "{fieldname} can not contain any spaces."
     }
 }

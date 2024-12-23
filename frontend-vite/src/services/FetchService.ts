@@ -1,4 +1,3 @@
-import { useRouter } from "vue-router";
 import { useAuthenticationStore } from "../stores/authenticationStore";
 import { BaseService } from "./BaseService";
 import { Router } from "../Routing";
@@ -43,8 +42,6 @@ export abstract class FetchService extends BaseService {
                     });
                     return fetchedModel;
                 }
-
-                throw "No reponse";
             } else {
                 this.logResponse(fetchModel.callerFunction, {
                     success: false,

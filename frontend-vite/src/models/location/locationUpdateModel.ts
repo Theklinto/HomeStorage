@@ -1,5 +1,5 @@
 import { LocationModel } from "./locationModel";
 
-export class LocationUpdateModel extends LocationModel {
-    public newImage: File | undefined;
+export interface LocationUpdateModel extends LocationModel {
+    newImage?: File;
 }

@@ -11,6 +11,8 @@
     "dependencies": {
         "@primevue/forms": "^4.2.2",
         "@primevue/themes": "^4.2.2",
+        "@vuelidate/core": "^2.0.3",
+        "@vuelidate/validators": "^2.0.4",
         "@vueuse/core": "^11.2.0",
         "primeicons": "^7.0.0",
         "primevue": "^4.2.2",

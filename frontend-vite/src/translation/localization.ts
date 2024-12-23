@@ -1,4 +1,4 @@
-import { createI18n, useI18n } from "vue-i18n";
+import { Composer, createI18n, useI18n } from "vue-i18n";
 import enUS from "./locales/en-US.json";
 import daDK from "./locales/da-DK.json";
 
@@ -22,7 +22,7 @@ export function useTranslator() {
         "en-US"
     >({
         inheritLocale: true,
-        
+
         messages: {
             "en-US": enUS,
         },

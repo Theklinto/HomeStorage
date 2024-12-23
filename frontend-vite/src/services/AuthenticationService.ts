@@ -25,14 +25,11 @@ export class AuthenticationService extends FetchService {
     }
 
     async register(model: RegisterModel): Promise<boolean> {
-        try {
-            await this.fetchData<void>(
-                new FetchModel(this.register.name, "auth/register", "POST", { body: model })
-            );
-            return Promise.resolve(true);
-        } catch (e) {
-            return Promise.resolve(false);
-        }
+        const result = await this.fetchData<void>(
+            new FetchModel(this.register.name, "auth/register", "POST", { body: model })
+        );
+
+        return true;
     }
 
     private _setAuthorization(tokenModel: TokenModel): void {

@@ -2,15 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"],
-            "@services/*": ["./src/services/*"],
-            "@models/*": ["./src/models/*"],
-            "@components/*": ["./src/components/*"],
-            "@stores/*": ["./src/stores/*"],
-            "@translation/*": ["./src/translation/*"],
-            "@views/*": ["./src/views/*"],
-            "@assets/*": ["./src/assets/*"],
-            "@interactions/*": ["./src/interactions/*"]
+            "@/*": ["./src/*"]
         },
         "resolveJsonModule": true,
         "esModuleInterop": true

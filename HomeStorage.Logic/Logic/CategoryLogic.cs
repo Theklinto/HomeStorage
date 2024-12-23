@@ -1,4 +1,5 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.CategoryEntities;
+using HomeStorage.DataAccess.LocationEntities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
@@ -8,15 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class CategoryLogic : LogicBase
+    public class CategoryLogic(HomeStorageDbContext db, ImageLogic imageLogic,
+        HttpContextService httpContextService) : LogicBase(httpContextService, db)
     {
-        private readonly ImageLogic _imageLogic;
-
-        public CategoryLogic(HomeStorageDbContext db, ImageLogic imageLogic, LocationLogic locationLogic,
-            HttpContextService httpContextService) : base(httpContextService, db)
-        {
-            _imageLogic = imageLogic;
-        }
+        private readonly ImageLogic _imageLogic = imageLogic;
 
         public async Task<CategoryModel?> GetCategory(Guid categoryId)
         {

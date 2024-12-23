@@ -7,7 +7,7 @@
         <template #content>
             <div class="row">
                 <div class="col-12">
-                    <DataTable :value="users" :loading="tableIsLoading">
+                    <DataTable :value="managmentModel.users" :loading="tableIsLoading">
                         <Column>
                             <template #body="{ data: user }: { data: LocationUserListModel }">
                                 <span v-if="user.isOwner" class="pi pi-crown"></span>
@@ -37,7 +37,7 @@
                         <Column :pt="{ bodyCell: { class: 'p-0' } }">
                             <template #body="{ data: user }: { data: LocationUserListModel }">
                                 <Button
-                                    v-if="!(user.isAdmin || user.isOwner)"
+                                    v-if="!user.isOwner && managmentModel.locationOwner"
                                     @click="() => removeUser(user.locationUserId)"
                                     severity="danger"
                                     icon="pi pi-times"
@@ -51,30 +51,11 @@
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <form @submit.prevent="addUser">
-                        <fieldset>
-                            <label>{{ t("location.UserManagement.addUserLabel") }}</label>
-                            <InputGroup class="mt-2">
-                                <InputText
-                                    required
-                                    type="email"
-                                    v-model="addUserEmail"
-                                    :placeholder="
-                                        t('location.UserManagement.emailInputPlaceholder')
-                                    "
-                                    :disabled="tableIsLoading"
-                                />
-                                <InputGroupAddon>
-                                    <Button
-                                        type="submit"
-                                        icon="pi pi-plus"
-                                        :disabled="!addUserEmail"
-                                        :loading="tableIsLoading"
-                                    />
-                                </InputGroupAddon>
-                            </InputGroup>
-                        </fieldset>
-                    </form>
+                    <AddUser
+                        v-model:is-loading="tableIsLoading"
+                        :location-id="locationId"
+                        @user-added="(user) => managmentModel.users.push(user)"
+                    />
                 </div>
             </div>
         </template>
@@ -84,27 +65,19 @@
 <script setup lang="ts">
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import DefaultLayout from "@/components/layout/DefaultLayout.vue";
+import AddUser from "@/components/location/AddUser.vue";
 import { LocationUserListModel } from "@/models/location/locationUserListModel";
+import { LocationUserManagmentModel } from "@/models/location/locationUserManagmentModel";
 import { LocationService } from "@/services/LocationService";
 import { useTranslator } from "@/translation/localization";
 import { errorCreater, ErrorDetails, keyOf } from "@/utilities";
-import {
-    Button,
-    Column,
-    DataTable,
-    FloatLabel,
-    InputGroup,
-    InputGroupAddon,
-    InputText,
-    ToastMessageOptions,
-    useToast,
-} from "primevue";
+import { Button, Column, DataTable, ToastMessageOptions, useToast } from "primevue";
 import { onMounted, ref } from "vue";
 
 const { t } = useTranslator();
-const isLoading = ref(false);
+const isLoading = ref(true);
 const error = ref<ErrorDetails | undefined>(undefined);
-const users = ref<LocationUserListModel[]>([]);
+const managmentModel = ref<LocationUserManagmentModel>();
 const locationService = new LocationService();
 const toast = useToast();
 
@@ -118,28 +91,33 @@ interface Props {
 
 const props = defineProps<Props>();
 
-onMounted(async () => {
+onMounted(() => {
+    fetchManagmentModel();
+});
+
+async function fetchManagmentModel() {
     isLoading.value = true;
 
     if (!props.locationId) {
         error.value = errorCreater(
-            t("manageUsersNoAccessSummary"),
-            t("manageUsersNoAccessDetails")
+            t("location.manageUsersNoAccessSummary"),
+            t("location.manageUsersNoAccessDetails")
         );
         return;
     }
 
     try {
-        users.value = await locationService.getLocationUsers(props.locationId);
+        managmentModel.value = await locationService.getLocationManagment(props.locationId);
     } catch (err) {
         error.value = errorCreater(
             t("manageUsersNoAccessSummary"),
             t("manageUsersNoAccessDetails")
         );
+        managmentModel.value.users = [];
     } finally {
         isLoading.value = false;
     }
-});
+}
 
 //TODO: Should not be able to remove current user if it is the last admin or owner.
 //TODO: Add Transfer ownership
@@ -152,37 +130,16 @@ async function removeUser(locationUserId: string) {
         life: 3000,
     });
     try {
-        const deleted = locationService.deleteLocationUser(locationUserId);
+        const deleted = await locationService.deleteLocationUser(locationUserId);
         if (!deleted) {
             toast.add(getErrorToast());
         }
 
-        users.value = users.value.filter((x) => x.locationUserId !== locationUserId);
+        managmentModel.value.users = managmentModel.value.users.filter(
+            (x) => x.locationUserId !== locationUserId
+        );
     } catch (err) {
         toast.add(getErrorToast());
-    } finally {
-        tableIsLoading.value = false;
-    }
-}
-
-async function addUser() {
-    tableIsLoading.value = true;
-    try {
-        const addedUser = await locationService.addLocationUser(
-            props.locationId,
-            addUserEmail.value
-        );
-        users.value.push({
-            email: addedUser.email,
-            isAdmin: addedUser.isAdmin,
-            isOwner: addedUser.isOwner,
-            locationUserId: addedUser.locationUserId,
-            username: addedUser.username,
-        });
-        addUserEmail.value = "";
-    } catch (err) {
-        const error = errorCreater(t("location.UserManagement.UserNotAddedErrorSummary"), err);
-        toast.add({ severity: "error", ...error, life: 3000 });
     } finally {
         tableIsLoading.value = false;
     }

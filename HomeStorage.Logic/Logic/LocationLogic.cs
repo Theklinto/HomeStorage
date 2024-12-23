@@ -1,4 +1,5 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.LocationEntities;
+using HomeStorage.DataAccess.UserEntities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
@@ -10,16 +11,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class LocationLogic : LogicBase
+    public class LocationLogic(
+        HomeStorageDbContext db,
+        ImageLogic imageLogic,
+        UserManager<HomeStorageUser> userManager,
+        HttpContextService httpContextService) : LogicBase(httpContextService, db)
     {
-        private readonly ImageLogic _imageLogic;
-        private readonly UserManager<IdentityUser> _userManager;
-        public LocationLogic(HomeStorageDbContext dbContext, ImageLogic imageLogic, UserManager<IdentityUser> userManager,
-            HttpContextService httpContextService) : base(httpContextService, dbContext)
-        {
-            _imageLogic = imageLogic;
-            _userManager = userManager;
-        }
+        private readonly ImageLogic _imageLogic = imageLogic;
+        private readonly UserManager<HomeStorageUser> _userManager = userManager;
 
         public async Task<LocationModel> CreateLocationAsync(LocationUpdateModel model)
         {
@@ -28,7 +27,7 @@ namespace HomeStorage.Logic.Logic
             if (string.IsNullOrWhiteSpace(model.Name))
                 throw new Exception("Can't create a location without a name");
 
-            IdentityUser user = await GetCurrentUser();
+            HomeStorageUser user = await GetCurrentUser();
 
             //Check for image and create
             Guid? imageId = default;
@@ -48,8 +47,9 @@ namespace HomeStorage.Logic.Logic
             {
                 IsLocationOwner = true,
                 IsLoactionAdmin = true,
-                Location = location,
-                User = user,
+                UserId = user.Id,
+                LocationId = location.LocationId,
+
             };
             await _db.LocationUsers.AddAsync(locationUser);
             await _db.SaveChangesAsync();
@@ -61,7 +61,7 @@ namespace HomeStorage.Logic.Logic
 
         public async Task<LocationModel?> GetLocationAsync(Guid locationId)
         {
-            IdentityUser user = await GetCurrentUser();
+            HomeStorageUser user = await GetCurrentUser();
 
             LocationUser? locationUser = await _db.LocationUsers
                 .Include(x => x.Location.Image)
@@ -71,7 +71,7 @@ namespace HomeStorage.Logic.Logic
                 DTOService.AsDTO<LocationModel, Location>(locationUser.Location) : null;
         }
 
-        public async Task<List<LocationModel>> GetAllLocationsByUser(IdentityUser? user = default)
+        public async Task<List<LocationModel>> GetAllLocationsByUser(HomeStorageUser? user = default)
         {
             user ??= await GetCurrentUser();
 
@@ -88,26 +88,22 @@ namespace HomeStorage.Logic.Logic
 
         public async Task<List<LocationListModel>> GetList()
         {
-            IdentityUser user = await GetCurrentUser();
+            HomeStorageUser user = await GetCurrentUser();
             List<Location> locations = await _db.Locations
-                .Where(x => x.LocationUsers.Any(y => y.UserId == user.Id))
-                .Include(x => x.LocationUsers)
+                .Include(x => x.LocationUsers.Where(x => x.UserId == user.Id))
                 .Include(x => x.Image)
+                .Where(x => x.LocationUsers.Any())
                 .ToListAsync();
 
-            List<LocationListModel> result = locations
-                .Select(DTOService.AsDTO<LocationListModel, Location>)
-                .ToList();
-
-            result.ForEach(location =>
+            return locations.Select(x => new LocationListModel()
             {
-                location.AllowUserManagment = locations
-                    .Where(x => x.LocationId == location.LocationId)
-                    .Where(x => x.LocationUsers.Any(x => x.UserId == user.Id && (x.IsLocationOwner || x.IsLocationOwner)))
-                    .Any();
-            });
-
-            return result;
+                Description = x.Description,
+                ImageId = x.ImageId,
+                IsAdmin = x.LocationUsers.First().IsLoactionAdmin,
+                IsOwner = x.LocationUsers.First().IsLocationOwner,
+                LocationId = x.LocationId,
+                Name = x.Name
+            }).ToList();
         }
 
         public async Task<LocationModel?> UpdateLocation(LocationUpdateModel updateModel)
@@ -134,7 +130,7 @@ namespace HomeStorage.Logic.Logic
 
         public async Task<(LocationModel? model, bool? allowDeletion)> DeleteLocation(Guid locationId)
         {
-            IdentityUser user = await GetCurrentUser();
+            HomeStorageUser user = await GetCurrentUser();
 
             Location? location = await _db.Locations
                 .Include(x => x.Image)
@@ -159,18 +155,33 @@ namespace HomeStorage.Logic.Logic
             return (DTOService.AsDTO<LocationModel, Location>(location), true);
         }
 
-        public async Task<List<LocationUserListModel>> GetLocationUsersAsync(Guid locationId)
+        public async Task<LocationUserManagmentModel> GetLocationUsersAsync(Guid locationId)
         {
             if (await CheckUserAccess<Location>(locationId, EAccess.LocationAdmin) is false)
-                throw new NotAuthorizedException("You don't have the required access level");
+                throw new NotAuthenticatedException("You don't have the required access level");
 
-            IdentityUser user = await GetCurrentUser();
+            HomeStorageUser user = await GetCurrentUser();
 
-            List<LocationUser> users = _db.LocationUsers
+            Dictionary<Guid, LocationUserListModel> users = _db.LocationUsers
                 .Where(x => x.LocationId == locationId)
-                .ToList();
+                .Include(x => x.User)
+                .ToDictionary(x => x.UserId, x => new LocationUserListModel()
+                {
+                    Email = x.User.Email,
+                    IsAdmin = x.IsLoactionAdmin,
+                    IsOwner = x.IsLocationOwner,
+                    LocationUserId = x.LocationUserId,
+                    Username = x.User.UserName
+                });
 
-            return users.Select(DTOService.AsDTO<LocationUserListModel, LocationUser>).ToList();
+            LocationUserManagmentModel model = new()
+            {
+                Users = [.. users.Select(x => x.Value)],
+                LocationAdmin = users[user.Id].IsAdmin,
+                LocationOwner = users[user.Id].IsOwner,
+            };
+
+            return model;
         }
 
         public async Task<LocationUserModel?> AddUserToLocation(Guid locationId, string email)
@@ -180,7 +191,7 @@ namespace HomeStorage.Logic.Logic
 
 
             //Find user by email
-            IdentityUser? addedUser = await _userManager.FindByEmailAsync(email);
+            HomeStorageUser? addedUser = await _userManager.FindByEmailAsync(email);
             if (addedUser is null)
                 return null;
 
@@ -201,13 +212,24 @@ namespace HomeStorage.Logic.Logic
 
             await _db.SaveChangesAsync();
 
-            return DTOService.AsDTO<LocationUserModel, LocationUser>(locationUser);
+            LocationUserModel model = new()
+            {
+                Email = addedUser.Email,
+                IsAdmin = locationUser.IsLoactionAdmin,
+                IsOwner = locationUser.IsLocationOwner,
+                LocationId = locationId,
+                LocationUserId = locationUser.LocationUserId,
+                UserId = addedUser.Id,
+                Username = addedUser.UserName
+            };
+
+            return model;
         }
 
         public async Task<LocationUserModel?> DeleteUserFromLocation(Guid locationUserId)
         {
             LocationUser? locationUser = await _db.LocationUsers
-                .Include(x => x.Location)
+                .Include(x => x.User)
                 .FirstOrDefaultAsync(x => x.LocationUserId == locationUserId);
 
             bool hasAccess = await CheckUserAccess<Location>(locationUser?.LocationId, EAccess.LocationAdmin);
@@ -218,7 +240,18 @@ namespace HomeStorage.Logic.Logic
             _db.Remove(locationUser);
             await _db.SaveChangesAsync();
 
-            return DTOService.AsDTO<LocationUserModel, LocationUser>(locationUser);
+            LocationUserModel model = new()
+            {
+                Email = locationUser.User.Email,
+                IsAdmin = locationUser.IsLoactionAdmin,
+                IsOwner = locationUser.IsLocationOwner,
+                LocationId = locationUserId,
+                LocationUserId = locationUserId,
+                UserId = locationUserId,
+                Username = locationUser.User.UserName
+            };
+
+            return model;
         }
     }
 }

@@ -1,20 +1,14 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.ImageEntities;
 using HomeStorage.Logic.Logic;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeStorage.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ImageController : Controller
+    public class ImageController(ImageLogic imageLogic) : Controller
     {
-        private readonly ImageLogic _imageLogic;
-
-        public ImageController(ImageLogic imageLogic)
-        {
-            _imageLogic = imageLogic;
-        }
+        private readonly ImageLogic _imageLogic = imageLogic;
 
         [Route("{imageId}")]
         [HttpGet]

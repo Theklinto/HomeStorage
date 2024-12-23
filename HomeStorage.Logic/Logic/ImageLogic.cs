@@ -1,25 +1,15 @@
-﻿using Microsoft.IdentityModel.Protocols;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using HomeStorage.Logic.DbContext;
-using Microsoft.EntityFrameworkCore;
-using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.ImageEntities;
+using HomeStorage.DataAccess.UserEntities;
 using HomeStorage.Logic.Abstracts;
+using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class ImageLogic : LogicBase
+    public class ImageLogic(HomeStorageDbContext db, HttpContextService httpContextService) : LogicBase(httpContextService, db)
     {
-        public ImageLogic(HomeStorageDbContext dbContext, HttpContextService httpContextService)
-            : base(httpContextService, dbContext) { }
-
         public async Task<Guid> CreateImageAsync(IFormFile file)
         {
             using MemoryStream memoryStream = new();
@@ -29,9 +19,11 @@ namespace HomeStorage.Logic.Logic
             if (imageBytes.Length <= 0)
                 return new();
 
+            HomeStorageUser user = await GetCurrentUser();
+
             Image? image = new()
             {
-                User = await GetCurrentUser(),
+                UserId = user.Id,
                 ImageBytes = imageBytes,
             };
 

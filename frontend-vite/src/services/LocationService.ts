@@ -4,6 +4,7 @@ import { LocationModel } from "../models/location/locationModel";
 import { LocationUpdateModel } from "../models/location/locationUpdateModel";
 import { FetchModel, FetchService } from "./FetchService";
 import { LocationUserListModel } from "@/models/location/locationUserListModel";
+import { LocationUserManagmentModel } from "@/models/location/locationUserManagmentModel";
 
 export class LocationService extends FetchService {
     constructor() {
@@ -61,9 +62,9 @@ export class LocationService extends FetchService {
         });
     }
 
-    async getLocationUsers(locationId: string): Promise<LocationUserListModel[]> {
-        return this.fetchData<LocationUserListModel[]>(
-            new FetchModel(this.getLocationUsers.name, "location/users", "GET", {
+    async getLocationManagment(locationId: string): Promise<LocationUserManagmentModel> {
+        return this.fetchData<LocationUserManagmentModel>(
+            new FetchModel(this.getLocationManagment.name, "location/users", "GET", {
                 params: { locationId: locationId },
             })
         );

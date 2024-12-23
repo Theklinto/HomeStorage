@@ -1,33 +1,20 @@
-﻿using HomeStorage.DataAccess.Entities;
+﻿using HomeStorage.DataAccess.CategoryEntities;
+using HomeStorage.DataAccess.LocationEntities;
+using HomeStorage.DataAccess.ProductEntities;
+using HomeStorage.DataAccess.UserEntities;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
 using HomeStorage.Logic.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HomeStorage.Logic.Abstracts
 {
-    public abstract class LogicBase
+    public abstract class LogicBase(HttpContextService httpContextService, HomeStorageDbContext db)
     {
-        protected readonly HttpContextService _httpContextService;
-        protected readonly HomeStorageDbContext _db;
-
-        protected LogicBase(HttpContextService httpContextService, HomeStorageDbContext db)
-        {
-            _httpContextService = httpContextService;
-            _db = db;
-        }
-
-        protected async Task<IdentityUser> GetCurrentUser() => await _httpContextService.GetCurrentUserAsync();
-        protected async Task<bool> CheckUserAccess<T>(Guid? id, EAccess access, IdentityUser? user = default)
+        protected readonly HomeStorageDbContext _db = db;
+        protected async Task<HomeStorageUser> GetCurrentUser() => await httpContextService.GetCurrentUserAsync();
+        protected async Task<bool> CheckUserAccess<T>(Guid? id, EAccess access, HomeStorageUser? user = default)
         {
             if (id.HasValue is false)
                 return false;
