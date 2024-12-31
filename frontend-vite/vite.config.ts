@@ -3,10 +3,6 @@ import vue from "@vitejs/plugin-vue";
 import path from "path";
 
 export default defineConfig({
-    build: {
-        outDir: "../HomeStorage.API\\wwwroot",
-        emptyOutDir: true,
-    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
