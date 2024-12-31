@@ -12,11 +12,11 @@ namespace HomeStorage.DataAccess.ProductEntities
     {
         public required Guid ProductId { get; set; }
         public required string Name { get; set; }
-        public required string Description { get; set; }
+        public string? Description { get; set; }
         public Guid? ImageId { get; set; }
         public required Guid LocationId { get; set; }
         public DateTime? ExpirationDate { get; set; }
-        public double Amount { get; set; }
+        public double? Amount { get; set; }
 
 
         [Required, ForeignKey(nameof(LocationId))]

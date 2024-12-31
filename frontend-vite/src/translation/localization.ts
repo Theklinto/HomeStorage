@@ -1,32 +1,34 @@
-import { Composer, createI18n, useI18n } from "vue-i18n";
+import { Composer, createI18n, useI18n, VueMessageType } from "vue-i18n";
 import enUS from "./locales/en-US.json";
 import daDK from "./locales/da-DK.json";
 
 // Type-define 'en-US' as the master schema for the resource
-type MessageSchema = typeof enUS;
-// "en-US" | "da-DK"
-export const i18n = createI18n<[MessageSchema], "en-US">({
+export type MessageSchema = typeof enUS;
+type Languages = "en-US" | "da-DK";
+const LanguageMap = {
+    "da-DK": daDK,
+    "en-US": enUS,
+} satisfies Record<Languages, object>;
+
+const fallbackLang = "en-US" satisfies Languages;
+
+let userLangauge = localStorage.getItem("lang");
+if (!userLangauge) {
+    const foundLang: string | undefined = Object.keys(LanguageMap).find(
+        (x) =>
+            x.toLocaleLowerCase() === navigator.language.toLocaleLowerCase() ||
+            x.split("-")[0].toLocaleLowerCase() === navigator.language.toLocaleLowerCase()
+    );
+
+    userLangauge = foundLang ?? fallbackLang;
+    localStorage.setItem("lang", userLangauge);
+}
+
+export const i18n = createI18n<[MessageSchema], Languages>({
     legacy: false,
-    locale: "en-US",
-    messages: {
-        "en-US": enUS,
-        // "da-DK": daDK,
-    },
+    locale: userLangauge,
+    fallbackLocale: fallbackLang,
+    messages: LanguageMap,
 });
 
-export function useTranslator() {
-    const translator = useI18n<
-        {
-            message: MessageSchema;
-        },
-        "en-US"
-    >({
-        inheritLocale: true,
-
-        messages: {
-            "en-US": enUS,
-        },
-    });
-
-    return translator;
-}
+export const useTranslator = useI18n<[MessageSchema], Languages>;

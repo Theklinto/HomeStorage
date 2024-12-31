@@ -1,7 +1,9 @@
 using HomeStorage.API.Authentication;
 using HomeStorage.API.ExceptionHandlers;
 using HomeStorage.API.Interfaces;
+using HomeStorage.API.JsonConverters;
 using HomeStorage.API.Middleware;
+using HomeStorage.API.ModelBinders;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Logic;
 using HomeStorage.Logic.Services;
@@ -24,6 +26,9 @@ IConfiguration config = new ConfigurationBuilder()
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+    options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
+    options.JsonSerializerOptions.Converters.Add(new NullableDateTimeJsonConverter());
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -59,13 +64,15 @@ builder.Services.AddDbContext<HomeStorageDbContext>(options => options.UseSqlSer
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<HttpContextService>();
 
+builder.Services.AddTransient<FromJsonBinder>();
+
 #region Logics
 
 builder.Services.AddTransient<AuthenticationLogic>();
 builder.Services.AddTransient<LocationLogic>();
 builder.Services.AddTransient<ImageLogic>();
-builder.Services.AddTransient<CategoryLogic>();
 builder.Services.AddTransient<ProductLogic>();
+builder.Services.AddTransient<CategoryLogic>();
 
 
 #region Exception Handlers
@@ -157,6 +164,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapFallbackToFile("/index.html");
+app.MapFallbackToFile("{*path:regex(^(?!api).*$)}", "index.html");
 
 app.Run();

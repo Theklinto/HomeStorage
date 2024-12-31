@@ -32,7 +32,7 @@ namespace HomeStorage.Logic.Logic
             //Check for image and create
             Guid? imageId = default;
             if (model.NewImage is not null && model.NewImage.Length > 0)
-                imageId = await _imageLogic.CreateImageAsync(model.NewImage);
+                imageId = await _imageLogic.CreateImage(model.NewImage);
 
             Location location = new()
             {
@@ -89,21 +89,19 @@ namespace HomeStorage.Logic.Logic
         public async Task<List<LocationListModel>> GetList()
         {
             HomeStorageUser user = await GetCurrentUser();
-            List<Location> locations = await _db.Locations
-                .Include(x => x.LocationUsers.Where(x => x.UserId == user.Id))
-                .Include(x => x.Image)
-                .Where(x => x.LocationUsers.Any())
-                .ToListAsync();
 
-            return locations.Select(x => new LocationListModel()
-            {
-                Description = x.Description,
-                ImageId = x.ImageId,
-                IsAdmin = x.LocationUsers.First().IsLoactionAdmin,
-                IsOwner = x.LocationUsers.First().IsLocationOwner,
-                LocationId = x.LocationId,
-                Name = x.Name
-            }).ToList();
+            return await _db.LocationUsers
+                .Where(x => x.UserId == user.Id)
+                .Select(x => x.Location)
+                .Select(x => new LocationListModel()
+                {
+                    Description = x.Description,
+                    ImageId = x.ImageId,
+                    IsAdmin = x.LocationUsers.First(x => x.UserId == user.Id).IsLoactionAdmin,
+                    IsOwner = x.LocationUsers.First(x => x.UserId == user.Id).IsLocationOwner,
+                    LocationId = x.LocationId,
+                    Name = x.Name
+                }).ToListAsync();
         }
 
         public async Task<LocationModel?> UpdateLocation(LocationUpdateModel updateModel)
@@ -118,7 +116,7 @@ namespace HomeStorage.Logic.Logic
             if (location.Image is not null && updateModel.NewImage is not null)
                 await _imageLogic.UpdateImageAsync(location.Image.ImageId, updateModel.NewImage);
             else if (location.Image is null && updateModel.NewImage is not null)
-                location.ImageId = await _imageLogic.CreateImageAsync(updateModel.NewImage);
+                location.ImageId = await _imageLogic.CreateImage(updateModel.NewImage);
 
             location.Name = updateModel.Name;
             location.Description = updateModel.Description;

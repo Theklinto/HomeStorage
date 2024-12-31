@@ -1,0 +1,109 @@
+{
+    "common": {
+        "homestorageTitle": "HomeStorage",
+        "nameFieldLabel": "Navn",
+        "descriptionFieldLabel": "Beskrivelse",
+        "createBtnLabel": "Opret",
+        "updateBtnLabel": "Opdater",
+        "Email": "Email",
+        "uploadImageBtnLabel": "Klik her for at vælge billede"
+    },
+    "authentication": {
+        "loginBtnLabel": "Login",
+        "registerBtnLabel": "Registrer",
+        "usernameFieldLabel": "Brugernavn",
+        "passwordFieldLabel": "Kodeord",
+        "emailFieldLabel": "Email",
+        "toLoginBtnLabel": "Gå til login",
+        "usernameHelpText": "Brugernavn må ikke indeholde mellemrum.",
+        "userCreatedToastSummary": "Bruger oprettet",
+        "userCreatedToastDetail": "Brugeren blev korrekt oprettet.",
+        "userNotCreatedToastSummary": "Bruger ikke oprettet",
+        "userNotCreatedToastDetail": "Kunne ikke oprette brugeren. Prøv igen."
+    },
+    "location": {
+        "listHeader": "Lokaliteter",
+        "emptyListText": "Ingen lokaliteter fundet. Opret en ved at klikke på \"+\" knappen.",
+        "creationErrorToast": "Der skete en fejl ved oprettelse af lokaliteten.",
+        "creationSuccessToast": "Lokalitet oprettet.",
+        "locationNameTooShortErrorText": "Lokalitetes navn skal være mindst 3 tegn.",
+        "createLocationHeader": "Opret lokalitet",
+        "editLocationHeader": "Rediger lokalitet",
+        "locationFetchErrorSummary": "Der skete en fejl ved indlæsning af lokaliteter",
+        "locationUpdateErrorToastSummary": "Der skete en fejl ved odpatering af lokaliteten",
+        "updateSuccessToastSummary": "Lokalitet opdatere",
+        "manageUsersBtnLabel": "Rediger brugere",
+        "manageUsersHeader": "Brugerstyring",
+        "manageUsersNoAccessSummary": "Manglende rettigheder",
+        "manageUsersNoAccessDetails": "Do har ikke adgang til at redigere brugere for lokaliteten.",
+        "userListUsernameColHeader": "Brugernavn",
+        "userListEmailColHeader": "Email",
+        "userListRemoveUserFailedSummary": "Bruger ikke fjernet",
+        "userListRemoveUserFiledDetail": "Der skete en fejl ved fjernelse af brugeren fra lokaliteten. Prøv igen.",
+        "UserManagement": {
+            "addUserLabel": "Tilføj bruger",
+            "emailInputPlaceholder": "Email",
+            "UserNotAddedErrorSummary": "Burger ikke tilføjet"
+        }
+    },
+    "product": {
+        "ListHeader": "Produkter",
+        "openFilterBtnLabel": "Vis filtre",
+        "errorFetchingProductsSummary": "Fejl ved indlæsning af produkter",
+        "emptyListText": "Ingen produkter fundet. Start med at oprette en ved at klikke på \"+\" knappen",
+        "errorFetchingCategoriesSummary": "Kunne ikke hente kategorier",
+        "errorFetchingCategoriesDetail": "Kategori vælger vil ikke have nogle forudfyldte muligheder.",
+        "errorDeletingProductSummary": "Kunne ikke slette produktet",
+        "searchFieldPlaceholder": "Søg på navn",
+        "filterDrawer": {
+            "header": "Produkt filtre",
+            "categoriesLabel": "Kategorier",
+            "noCategoriesText": "Ingen kategorier fundet",
+            "selectAllLabel": "Vælg alle",
+            "orderByPropertyLabel": "Sorter efter",
+            "orderByDirectionLabel": "Retning",
+            "sortPanelLabel": "Sortering",
+            "clearFilter": "Ryd filter",
+            "sortProperties": {
+                "name": "Navn",
+                "amount": "Antal",
+                "expirationDate": "Udløbsdato"
+            },
+            "sortDirection": {
+                "ascending": "Stigende",
+                "descending": "Faldende"
+            },
+            "amountFilter": {
+                "header": "Antal",
+                "minValueLabel": "Min. værdi",
+                "maxValueLabel": "Max. værdi"
+            }
+        },
+        "editor": {
+            "editHEader": "Rediger produkt",
+            "createHeader": "Opret produkt",
+            "nameLabel": "Navn",
+            "descriptionLabel": "Beskrivelse",
+            "amountLabel": "Antal",
+            "expirationDateLabel": "Udløbsdato",
+            "categoriesLabel": "Kategorier",
+            "errorFetchingProductSummary": "Kunne ikke hente produktet",
+            "createBtnLabel": "Opret",
+            "errorCreatingProductSummary": "Kunne ikke oprette produktet",
+            "errorUpdatingProductSummary": "Kunne ikke opdatere produktet",
+            "productUpdatedSummary": "Produktet blev oprettet",
+            "confirmDeleteDialog": {
+                "header": "Slet produkt",
+                "text": "Er du sikker på du vil slette produktet?",
+                "confirmBtnLabel": "Slet",
+                "cancelBtnLabel": "Annuller"
+            }
+        }
+    },
+    "validators": {
+        "invalidEmail": "{fieldname} er ikke en gyldig email.",
+        "required": "{fieldname} er påkrævet.",
+        "minLength": "{fieldname} skal være mindst {length} tegn.",
+        "noSpaces": "{fieldname} må ikke indeholde mellemrum."
+    }
+}

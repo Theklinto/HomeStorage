@@ -5,7 +5,8 @@
         "descriptionFieldLabel": "Description",
         "createBtnLabel": "Create",
         "updateBtnLabel": "Update",
-        "Email": "Email"
+        "Email": "Email",
+        "uploadImageBtnLabel": "Click me to upload image"
     },
     "authentication": {
         "loginBtnLabel": "Login",
@@ -21,8 +22,8 @@
         "userNotCreatedToastDetail": "Could not create the user. Please try again."
     },
     "location": {
+        "listHeader": "Locations",
         "emptyListText": "No locations found. Start by creating one using the \"+\" button",
-        "uploadImageBtnLabel": "Click me to upload image",
         "creationErrorToast": "An error occured while trying to create the location.",
         "creationSuccessToast": "The location was created.",
         "locationNameTooShortErrorText": "Location name should be atleast 3 characters.",
@@ -43,6 +44,60 @@
             "addUserLabel": "Add User",
             "emailInputPlaceholder": "Email",
             "UserNotAddedErrorSummary": "User not added"
+        }
+    },
+    "product": {
+        "ListHeader": "Products",
+        "openFilterBtnLabel": "Show filters",
+        "errorFetchingProductsSummary": "Error while fetching products",
+        "emptyListText": "No products found. Start by creating one using the \"+\" button",
+        "errorFetchingCategoriesSummary": "An error occured while fetching categories",
+        "errorFetchingCategoriesDetail": "Category dropdown will not have any prefilled options",
+        "errorDeletingProductSummary": "An error occured while deleting the product",
+        "searchFieldPlaceholder": "Search by name",
+        "filterDrawer": {
+            "header": "Product filters",
+            "categoriesLabel": "Categories",
+            "noCategoriesText": "No categories are found",
+            "selectAllLabel": "Select all",
+            "orderByPropertyLabel": "Sort by",
+            "orderByDirectionLabel": "Sort direction",
+            "sortPanelLabel": "Sorting",
+            "clearFilter": "Clear filter",
+            "sortProperties": {
+                "name": "Name",
+                "amount": "Amount",
+                "expirationDate": "Expiration date"
+            },
+            "sortDirection": {
+                "ascending": "Ascending",
+                "descending": "Descending"
+            },
+            "amountFilter": {
+                "header": "Amount",
+                "minValueLabel": "Min. value",
+                "maxValueLabel": "Max. value"
+            }
+        },
+        "editor": {
+            "editHEader": "Edit product",
+            "createHeader": "Create product",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description",
+            "amountLabel": "Count",
+            "expirationDateLabel": "Expiration date",
+            "categoriesLabel": "Categories",
+            "errorFetchingProductSummary": "Error while fetching product",
+            "createBtnLabel": "Create",
+            "errorCreatingProductSummary": "An error occured while creating the product",
+            "errorUpdatingProductSummary": "An error occured while updating the product",
+            "productUpdatedSummary": "The product was updated",
+            "confirmDeleteDialog": {
+                "header": "Delete product",
+                "text": "Are you sure you want to delete the product?",
+                "confirmBtnLabel": "Delete",
+                "cancelBtnLabel": "Cancel"
+            }
         }
     },
     "validators": {

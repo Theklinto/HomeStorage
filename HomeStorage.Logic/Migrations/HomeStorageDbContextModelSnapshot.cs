@@ -43,9 +43,6 @@ namespace HomeStorage.Logic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ImageId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -54,8 +51,6 @@ namespace HomeStorage.Logic.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CategoryId");
-
-                    b.HasIndex("ImageId");
 
                     b.HasIndex("LocationId");
 
@@ -71,6 +66,9 @@ namespace HomeStorage.Logic.Migrations
                     b.Property<byte[]>("ImageBytes")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -138,11 +136,10 @@ namespace HomeStorage.Logic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Amount")
+                    b.Property<double?>("Amount")
                         .HasColumnType("float");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ExpirationDate")
@@ -384,17 +381,11 @@ namespace HomeStorage.Logic.Migrations
 
             modelBuilder.Entity("HomeStorage.DataAccess.CategoryEntities.Category", b =>
                 {
-                    b.HasOne("HomeStorage.DataAccess.ImageEntities.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
-
                     b.HasOne("HomeStorage.DataAccess.LocationEntities.Location", "Location")
                         .WithMany("Categories")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Image");
 
                     b.Navigation("Location");
                 });

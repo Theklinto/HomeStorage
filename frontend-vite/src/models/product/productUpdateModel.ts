@@ -1,14 +1,12 @@
-import { ProductModel } from "./ProductModel";
+import { Lookup } from "@/models/lookup";
 
-export class ProductUpdateModel extends ProductModel {
-    getFormData(): FormData {
-        const formData = new FormData();
-        if (this.newImage) {
-            formData.append("file", this.newImage);
-        }
-        formData.append("json", JSON.stringify(this));
-
-        return formData;
-    }
-    public newImage?: File;
+export interface ProductUpdateModel {
+    productId: string;
+    locationId: string;
+    name: string;
+    description?: string;
+    categories: Lookup<string | undefined>[];
+    expirationDate?: string;
+    amount?: number;
+    image?: File;
 }

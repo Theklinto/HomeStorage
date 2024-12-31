@@ -1,11 +1,18 @@
 import { BaseService } from "./BaseService";
 
 export class ImageService extends BaseService {
-    public static getImageById(id: string): string {
+    public static getImageById(id: string | undefined): string {
         if (id) {
-            return `${ImageService.baseUrl}image/${id}`;
+            return `${ImageService.baseUrl}images/${id}`;
         }
         return "";
+    }
+
+    public static getImageByUrl(url: string | undefined) {
+        if (url) {
+            return ImageService.baseUrl + url.replace(/^[/\\]+/, "");
+        }
+        return ""
     }
 
     public static resizeImage(file: File, maxWidth = 500, maxHeight = 500): Promise<File> {

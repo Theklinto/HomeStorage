@@ -1,0 +1,14 @@
+{
+  "name": "HomeStorage",
+  "short_name": "HomeStorage",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color":"#ffffff",
+  "icons": [
+    {
+      "src": "box.svg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }]
+}

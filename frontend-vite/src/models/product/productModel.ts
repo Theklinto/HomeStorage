@@ -1,12 +1,12 @@
-import { CategoryNotationModel } from "../category/CategoryNotationModel"; 
+import { Lookup } from "@/models/lookup";
 
-export class ProductModel {
-    public productId!: string;
-    public locationId!: string;
-    public name!: string;
-    public description!: string;
-    public imageId!: string;
-    public categories!: CategoryNotationModel[];
-    public expirationDate!: string;
-    public amount = 0;
+export interface ProductModel {
+    productId: string;
+    locationId: string;
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    categories: Lookup<string>[];
+    expirationDate?: string;
+    amount?: number;
 }

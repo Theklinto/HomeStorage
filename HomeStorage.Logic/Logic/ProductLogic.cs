@@ -4,81 +4,87 @@ using HomeStorage.DataAccess.ProductEntities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
+using HomeStorage.Logic.Exceptions;
+using HomeStorage.Logic.IQueryableExtensions;
+using HomeStorage.Logic.Models;
 using HomeStorage.Logic.Models.ProductModels;
 using HomeStorage.Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class ProductLogic(HomeStorageDbContext db, ImageLogic imageLogic, HttpContextService contextService) : LogicBase(contextService, db)
+    public class ProductLogic(HomeStorageDbContext db, ImageLogic imageLogic, HttpContextService contextService, CategoryLogic categoryLogic) : LogicBase(contextService, db)
     {
         private readonly ImageLogic _imageLogic = imageLogic;
+        private readonly CategoryLogic _categoryLogic = categoryLogic;
 
-        public async Task<ProductModel?> GetProductAsync(Guid productId)
+        public async Task<ProductModel> GetProduct(Guid productId, CancellationToken cancellationToken)
         {
-            if (await CheckUserAccess<Product>(productId, Enums.EAccess.Read) is false)
-                return null;
+            await ThrowIfNoAccess<Product>(productId, EAccess.Read);
 
-            Product? product = await _db.Products
-                .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.ProductId == productId);
+            ProductModel product = await _db.Products
+                .Select(x => new ProductModel()
+                {
+                    Name = x.Name,
+                    Categories = x.Categories.Select(x => new LookupModel<Guid>(x.Name, x.CategoryId)).ToList(),
+                    Amount = x.Amount,
+                    Description = x.Description,
+                    ExpirationDate = x.ExpirationDate,
+                    ImageUrl = x.Image != null ? ImageLogic.GetImageUrl(x.Image.ImageId, x.Image.LastModified) : null,
+                    LocationId = x.LocationId,
+                    ProductId = x.ProductId
+                })
+                .FirstAsync(x => x.ProductId == productId, cancellationToken);
 
-            if (product is null)
-                return null;
-
-            return DTOService.AsDTO<ProductModel, Product>(product);
+            return product;
         }
 
-        public async Task<List<ProductModel>?> GetProductsFromLocationAsync(Guid locationId)
+        public async Task<List<ProductListModel>> GetProductsFromLocation(Guid locationId, ProductFilterModel filters, CancellationToken cancellationToken = default)
         {
-            if (await CheckUserAccess<Location>(locationId, EAccess.Read) is false)
-                return null;
+            await ThrowIfNoAccess<Location>(locationId, EAccess.Read);
 
-            List<Product> products = await _db.Locations
-                .Where(x => x.LocationId == locationId)
-                .SelectMany(x => x.Products)
-                .ToListAsync();
+            IQueryable<Product> query = _db.Products
+                .Where(x => x.LocationId == locationId);
 
-            return products
-                .Select(DTOService.AsDTO<ProductModel, Product>)
-                .ToList();
+            if (filters.Categories.Count > 0)
+                query = query
+                    .Where(x => x.Categories.Any(y => EF.Constant(filters.Categories).Contains(y.CategoryId)));
+
+            if (filters.MinAmount is not null)
+                query = query
+                    .Where(x => x.Amount >= filters.MinAmount);
+            if (filters.MaxAmount is not null)
+                query = query
+                    .Where(x => x.Amount <= filters.MaxAmount || x.Amount == null);
+
+            if (string.IsNullOrWhiteSpace(filters.SearchString) is false)
+            {
+                string searchExpr = $"%%{filters.SearchString}%%";
+                query = query
+                    .Where(x => EF.Functions.Like(x.Name, searchExpr));
+            }
+
+            List<ProductListModel> products = await query
+                .OrderByProperty(filters.OrderByProperty, filters.SortDirection, x => x.ProductId)
+                .Select(x => new ProductListModel()
+                {
+                    Name = x.Name,
+                    ProductId = x.ProductId,
+                    Amount = x.Amount,
+                    Description = x.Description,
+                    ExpirationDate = x.ExpirationDate,
+                    ImageUrl = x.Image != null ? ImageLogic.GetImageUrl(x.Image.ImageId, x.Image.LastModified) : null
+                })
+                .ToListAsync(cancellationToken);
+
+            return products;
         }
 
-        public async Task<List<ProductModel>?> GetProductFromCategoryAsync(Guid categoryId)
+        public async Task<ProductModel> CreateProduct(ProductCreateModel model, CancellationToken cancellationToken)
         {
-            if (await CheckUserAccess<Category>(categoryId, EAccess.Read) is false)
-                return null;
+            await ThrowIfNoAccess<Location>(model.LocationId, EAccess.Read);
 
-            List<Product> products = await _db.Categories
-                .Where(x => x.CategoryId == categoryId)
-                .SelectMany(x => x.Products)
-                .ToListAsync();
-
-            return products
-                .Select(DTOService.AsDTO<ProductModel, Product>)
-                .ToList();
-        }
-
-        public async Task<ProductModel?> CreateProductAsync(ProductUpdateModel model)
-        {
-
-            if (await CheckUserAccess<Location>(model.LocationId, EAccess.Create) is false)
-                return null;
-
-            Location? location = await _db.Locations
-                .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
-
-            if (location is null)
-                return null;
-
-            List<Guid> categoryIds = model.Categories.Select(x => x.CategoryId).ToList();
-            List<Category> categories = await _db.Categories
-                .Where(x => categoryIds.Contains(x.CategoryId))
-                .ToListAsync();
-
-            Guid? imageId = model.NewImage is not null ?
-                    await _imageLogic.CreateImageAsync(model.NewImage) :
-                    null;
+            List<Category> categories = await _categoryLogic.GetCategoriesByLookup(model.LocationId, model.Categories, cancellationToken);
 
             Product product = new()
             {
@@ -87,72 +93,79 @@ namespace HomeStorage.Logic.Logic
                 Description = model.Description,
                 Name = model.Name,
                 ExpirationDate = model.ExpirationDate,
-                LocationId = location.LocationId,
-                Categories = categories,
-                ImageId = imageId,
+                LocationId = model.LocationId,
+                Categories = categories
             };
 
-            await _db.Products.AddAsync(product);
-            await _db.SaveChangesAsync();
+            if (model.Image is not null)
+                product.Image = await _imageLogic.CreateOrUpdateImage(model.Image, null, cancellationToken);
 
-            return DTOService.AsDTO<ProductModel, Product>(product);
+            await _db.Products.AddAsync(product, cancellationToken);
+            await _db.SaveChangesAsync(cancellationToken);
+
+            ProductModel createdProduct = new()
+            {
+                Name = product.Name,
+                LocationId = product.LocationId,
+                ProductId = product.ProductId,
+                Categories = product.Categories.Select(x => new LookupModel<Guid>(x.Name, x.CategoryId)).ToList(),
+                Description = product.Description,
+                ExpirationDate = product.ExpirationDate,
+                ImageUrl = ImageLogic.GetImageUrl(product.Image?.ImageId, product.Image?.LastModified),
+                Amount = product.Amount,
+
+            };
+
+            return createdProduct;
         }
 
-        public async Task<ProductModel?> UpdateProductAsync(ProductUpdateModel model)
+        public async Task<ProductModel> UpdateProductAsync(ProductUpdateModel model, CancellationToken cancellationToken)
         {
-            if (await CheckUserAccess<Product>(model.ProductId, EAccess.Update) is false)
-                return null;
+            await ThrowIfNoAccess<Product>(model.ProductId, EAccess.Update);
 
-            Product? product = await _db.Products
+            Product product = await _db.Products
                 .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
+                .FirstOrDefaultAsync(x => x.ProductId == model.ProductId, cancellationToken: cancellationToken) ?? throw new NotFoundException();
 
-            if (product is null)
-                return null;
 
-            List<Guid> categoryIds = model.Categories.Select(x => x.CategoryId).ToList();
-            List<Category> categories = await _db.Categories
-                .Where(x => categoryIds.Contains(x.CategoryId))
-                .ToListAsync();
+            List<Category> categories = await _categoryLogic.GetCategoriesByLookup(model.LocationId, model.Categories, cancellationToken);
 
-            //Remove old categories
-
-            product.Categories.Clear();
-            product.Categories.AddRange(categories);
-
+            product.Categories = categories;
             product.Name = model.Name;
             product.Description = model.Description;
             product.Amount = model.Amount;
             product.ExpirationDate = model.ExpirationDate;
 
-            if (product.Image is null && model.NewImage is not null)
-                product.ImageId = await _imageLogic.CreateImageAsync(model.NewImage);
-            else if (model.NewImage is not null)
-                product.Image = await _imageLogic.UpdateImageAsync(product.ImageId.GetValueOrDefault(), model.NewImage);
+            if (model.Image is not null)
+                product.Image = await _imageLogic.CreateOrUpdateImage(model.Image, product.ImageId, cancellationToken);
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(cancellationToken);
 
-            return DTOService.AsDTO<ProductModel, Product>(product);
+            ProductModel updatedProduct = new()
+            {
+                LocationId = product.LocationId,
+                Name = product.Name,
+                ProductId = product.ProductId,
+                Categories = product.Categories.Select(x => new LookupModel<Guid>(x.Name, x.CategoryId)).ToList(),
+                Amount = product.Amount,
+                ExpirationDate = product.ExpirationDate,
+                Description = product.Description,
+                ImageUrl = ImageLogic.GetImageUrl(product.Image?.ImageId, product.Image?.LastModified)
+            };
+
+            return updatedProduct;
         }
 
-        public async Task<ProductModel?> DeleteProductAsync(Guid productId)
+        public async Task DeleteProduct(Guid productId, CancellationToken cancellationToken)
         {
-            if (await CheckUserAccess<Product>(productId, EAccess.Delete) is false)
-                return null;
+            await ThrowIfNoAccess<Product>(productId, EAccess.Delete);
 
-            Product? product = await _db.Products
+            Product product = await _db.Products
                 .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.ProductId == productId);
+                .FirstAsync(x => x.ProductId == productId, cancellationToken);
 
-            if (product is null)
-                return null;
-
-            product.Categories.Clear();
             _db.Products.Remove(product);
-
-            await _db.SaveChangesAsync();
-
-            return DTOService.AsDTO<ProductModel, Product>(product);
+            await _db.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<bool> UpdateProductAmount(Guid productId, double newAmount)

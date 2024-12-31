@@ -15,7 +15,11 @@ namespace HomeStorage.Logic.Services
         {
             string userId = _contextAccessor.HttpContext?.User.Claims
                 .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-            HomeStorageUser? user = await _userManager.FindByIdAsync(userId) ??
+
+            if (Guid.TryParse(userId, out Guid id) is false)
+                throw new NotAuthenticatedException("");
+
+            HomeStorageUser user = await _userManager.FindByIdAsync(id.ToString()) ??
                 throw new NotAuthenticatedException($"Expected user to be logged in. But found no user with (UserId: {userId})");
             return user;
         }
