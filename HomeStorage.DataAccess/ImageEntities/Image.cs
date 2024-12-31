@@ -12,7 +12,8 @@ namespace HomeStorage.DataAccess.ImageEntities
         public required Guid UserId { get; set; }
         [Required, MinLength(1)]
         public byte[] ImageBytes { get; set; } = [];
-
+        [Required]
+        public DateTime LastModified { get; set; }
 
         [Required, ForeignKey(nameof(UserId))]
         public virtual HomeStorageUser User { get; set; } = default!;

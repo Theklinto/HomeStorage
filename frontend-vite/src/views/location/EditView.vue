@@ -4,42 +4,18 @@
             existingLocation ? t('location.editLocationHeader') : t('location.createLocationHeader')
         "
         :is-loading="isLoading"
-        :show-error="!!error"
+        :error="error"
     >
-        <template #loading></template>
         <template #content>
             <form @submit.prevent="submitForm">
                 <fieldset :disabled="isLoading">
                     <div class="container-fluid d-flex flex-column px-4 gap-4">
                         <div class="row">
-                            <div class="col-12 d-flex justify-content-center">
-                                <input
-                                    ref="imageInput"
-                                    type="file"
-                                    accept="images/*,android/force-camera-workaround"
-                                    class="d-none"
-                                    @change="onFileSelected"
-                                />
-                                <Button
-                                    class="w-100 ratio ratio-1x1 position-relative"
-                                    outlined
-                                    severity="secondary"
-                                    @click="uploadImageClick()"
-                                >
-                                    <template #default>
-                                        <div
-                                            v-if="!src"
-                                            class="d-flex justify-content-center align-items-center flex-column gap-2"
-                                        >
-                                            <span class="pi pi-image"></span>
-                                            <span>{{ t("location.uploadImageBtnLabel") }}</span>
-                                        </div>
-                                        <template v-else>
-                                            <img :src="src" class="object-fit-contain" />
-                                        </template>
-                                    </template>
-                                </Button>
-                            </div>
+                            <EditorImageUpload
+                                class="col-12"
+                                v-model:image-file="locationModel.newImage"
+                                :image-src="ImageService.getImageById(locationModel.imageId)"
+                            />
                         </div>
                         <div class="row">
                             <div class="col-12">
@@ -110,9 +86,6 @@
                 </fieldset>
             </form>
         </template>
-        <template #error>
-            <ErrorMessage :error="error" />
-        </template>
     </DefaultLayout>
 </template>
 
@@ -128,6 +101,7 @@ import { useRouter } from "vue-router";
 import { errorCreater, ErrorDetails } from "@/utilities";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import { ImageService } from "@/services/ImageService";
+import EditorImageUpload from "@/components/EditorImageUpload.vue";
 
 const src = ref<string | null>(null);
 const imageInput = ref<HTMLInputElement>();

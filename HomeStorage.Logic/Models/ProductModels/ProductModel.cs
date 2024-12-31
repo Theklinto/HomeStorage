@@ -1,38 +1,14 @@
-﻿using HomeStorage.Logic.Services;
-using HomeStorage.Logic.Models.CategoryModels;
-using HomeStorage.Logic.Interfaces;
-using HomeStorage.DataAccess.CategoryEntities;
-using HomeStorage.DataAccess.ProductEntities;
-
-namespace HomeStorage.Logic.Models.ProductModels
+﻿namespace HomeStorage.Logic.Models.ProductModels
 {
-    public class ProductModel : IDTO<ProductModel, Product>
+    public class ProductModel
     {
-        public Guid? ProductId { get; set; }
-        public Guid? LocationId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public Guid? ImageId { get; set; }
-        public List<CategoryNotationModel> Categories { get; set; } = new();
+        public required Guid ProductId { get; set; }
+        public required Guid LocationId { get; set; }
+        public required string Name { get; set; }
+        public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
+        public List<LookupModel<Guid>> Categories { get; set; } = [];
         public DateTime? ExpirationDate { get; set; }
-        public double Amount { get; set; }
-
-
-        public static ProductModel AsDTO(Product source)
-        {
-            return new()
-            {
-                Amount = source.Amount,
-                Categories = source.Categories
-                    .Select(DTOService.AsDTO<CategoryNotationModel, Category>)
-                    .ToList(),
-                Description = source.Description,
-                ExpirationDate = source.ExpirationDate,
-                ImageId = source.ImageId,
-                LocationId = source.LocationId,
-                Name = source.Name,
-                ProductId = source.ProductId,
-            };
-        }
+        public double? Amount { get; set; }
     }
 }

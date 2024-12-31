@@ -2,128 +2,68 @@
 using HomeStorage.DataAccess.LocationEntities;
 using HomeStorage.Logic.Abstracts;
 using HomeStorage.Logic.DbContext;
-using HomeStorage.Logic.Enums;
-using HomeStorage.Logic.Models.CategoryModels;
+using HomeStorage.Logic.Models;
 using HomeStorage.Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeStorage.Logic.Logic
 {
-    public class CategoryLogic(HomeStorageDbContext db, ImageLogic imageLogic,
-        HttpContextService httpContextService) : LogicBase(httpContextService, db)
+    public class CategoryLogic(HttpContextService contextService, HomeStorageDbContext dbContext) : LogicBase(contextService, dbContext)
     {
-        private readonly ImageLogic _imageLogic = imageLogic;
-
-        public async Task<CategoryModel?> GetCategory(Guid categoryId)
+        public async Task<List<LookupModel<Guid>>> GetCategoryLookup(Guid locationId, CancellationToken cancellationToken = default)
         {
-            Category? category = await _db.Categories
-                .FirstOrDefaultAsync(x => x.CategoryId == categoryId);
+            await ThrowIfNoAccess<Location>(locationId, Enums.EAccess.Read);
 
-            bool hasAccess = await CheckUserAccess<Category>(categoryId, EAccess.Read);
-
-            if (category is null || hasAccess is false)
-                return null;
-
-            return DTOService.AsDTO<CategoryModel, Category>(category);
-        }
-
-        public async Task<List<CategoryModel>?> GetCategoriesForLocation(Guid locationId)
-        {
-            List<Category> categories = await _db.Categories
+            List<LookupModel<Guid>> categoryLookups = await _db.Categories
                 .Where(x => x.LocationId == locationId)
-                .ToListAsync();
+                .Select(x => new LookupModel<Guid>(x.Name, x.CategoryId))
+                .ToListAsync(cancellationToken);
 
-            bool hasAccess = await CheckUserAccess<Location>(locationId, EAccess.Read);
+            return categoryLookups;
+        }
 
-            if (hasAccess is false)
-                return null;
-
-            return categories
-                .Select(DTOService.AsDTO<CategoryModel, Category>)
+        private async Task<List<Category>> CreateMissingCategories(Guid locationId, List<LookupModel<Guid?>> categoryLookups, CancellationToken cancellationToken = default)
+        {
+            List<string> categoriesToCreate = categoryLookups
+                .Where(x => x.Id == null)
+                .Select(x => x.Name)
                 .ToList();
-        }
+            if (categoriesToCreate.Count == 0)
+                return [];
 
-        public async Task<CategoryModel?> CreateCategory(CategoryUpdateModel model)
-        {
-            Location? location = await _db.Locations
-                .FirstOrDefaultAsync(x => x.LocationId == model.LocationId);
-
-            bool hasAccess = await CheckUserAccess<Location>(model.LocationId, EAccess.Create);
-
-            if (location is null || hasAccess is false)
-                return null;
-
-            Category category = new()
-            {
-                Name = model.Name,
-                LocationId = model.LocationId,
-            };
-
-            if (model.NewImage is not null)
-                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage);
-
-            location.Categories.Add(category);
-
-            await _db.SaveChangesAsync();
-
-            return DTOService.AsDTO<CategoryModel, Category>(category);
-        }
-
-        public async Task<CategoryModel?> UpdateCategory(CategoryUpdateModel model)
-        {
-            Category? category = await _db.Categories
-                .FirstOrDefaultAsync(x => x.CategoryId == model.CategoryId);
-
-            bool hasAccess = await CheckUserAccess<Category>(model.CategoryId, EAccess.Update);
-
-            if (category is null || hasAccess is false)
-                return null;
-
-            if (model.NewImage is not null && category.Image is not null)
-                category.Image = await _imageLogic.UpdateImageAsync(category.ImageId.GetValueOrDefault(), model.NewImage);
-            else if (model.NewImage is not null)
-                category.ImageId = await _imageLogic.CreateImageAsync(model.NewImage);
-
-            category.Name = model.Name;
-
-            await _db.SaveChangesAsync();
-
-            return DTOService.AsDTO<CategoryModel, Category>(category);
-        }
-
-        public async Task<CategoryModel?> DeleteCategory(Guid categoryId)
-        {
-            if (await CheckUserAccess<Category>(categoryId, EAccess.Delete) is false)
-                return null;
-
-            Category? category = await _db.Categories
-                .FirstOrDefaultAsync(x => x.CategoryId == categoryId);
-
-            if (category is null)
-                return null;
-
-            if (category.Image is not null)
-                _db.Images.Remove(category.Image);
-            _db.Categories.Remove(category);
-            await _db.SaveChangesAsync();
-
-            return DTOService.AsDTO<CategoryModel, Category>(category);
-        }
-
-        public async Task<List<CategoryNotationModel>?> GetCategoriesAsNotationForLocationAsync(Guid locationId)
-        {
-            bool hasAccess = await CheckUserAccess<Location>(locationId, EAccess.Read);
-
-            List<Category> categories = await _db.Categories
-                .Where(x => x.LocationId == locationId)
-                .ToListAsync();
-
-            if (hasAccess is false)
-                return null;
-
-            return categories
-                .Select(DTOService.AsDTO<CategoryNotationModel, Category>)
+            List<Category> categories = categoriesToCreate
+                .Select(x => new Category()
+                {
+                    LocationId = locationId,
+                    Name = x,
+                })
                 .ToList();
+
+            await _db.AddRangeAsync(categories, cancellationToken);
+
+            return categories;
+        }
+
+        public async Task<List<Category>> GetCategoriesByLookup(Guid locationId, List<LookupModel<Guid?>> categoryLookups, CancellationToken cancellationToken = default)
+        {
+            List<Guid> categoryIds = categoryLookups
+                .Where(x => x.Id != null)
+                .Select(x => x.Id)
+                .Cast<Guid>()
+                .ToList();
+
+            List<Category> categories = [];
+
+            if (categoryIds.Count > 0)
+                categories = await _db.Categories
+                   .Where(x => EF.Constant(categoryIds).Contains(x.CategoryId) && locationId == x.LocationId)
+                   .ToListAsync(cancellationToken);
+
+            List<Category> missingCategories = await CreateMissingCategories(locationId, categoryLookups, cancellationToken);
+
+            categories.AddRange(missingCategories);
+
+            return categories;
         }
     }
 }

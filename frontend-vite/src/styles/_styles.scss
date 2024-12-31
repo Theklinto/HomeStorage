@@ -11,38 +11,47 @@ body {
     margin: 0;
 }
 
-fieldset{
+fieldset {
     border: 0;
     padding: 0;
     margin: 0;
 }
 
-
-.p-toast{
+.p-toast {
     max-width: calc(100vw - 40px);
 }
 
-.p-dataview.containerless{
+.p-dataview.containerless {
     border: unset;
-    & > .p-dataview-content{
+    & > .p-dataview-content {
         background: unset;
     }
 }
-.p-panel{
-    &.headerless > .p-panel-header{
+.p-panel {
+    &.headerless > .p-panel-header {
         display: none;
     }
     &.fluid {
-        & > .p-panel-content-container > .p-panel-content{
+        & > .p-panel-content-container > .p-panel-content {
             padding: 0;
         }
-        & > .p-panel-header{
+        & > .p-panel-header {
             padding: 0;
         }
     }
-    &.no-toggle{
-        & > .p-panel-header > .p-panel-header-actions{
+    &.no-toggle {
+        & > .p-panel-header > .p-panel-header-actions {
             display: none;
         }
     }
+    &.borderless {
+        border: 0;
+        & > .p-panel-header {
+            border: 0;
+        }
+    }
+}
+
+.p-dialog-mask{
+    background-color: rgba(0, 0, 0, .75);
 }

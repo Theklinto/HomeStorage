@@ -4,6 +4,7 @@ using HomeStorage.DataAccess.ProductEntities;
 using HomeStorage.DataAccess.UserEntities;
 using HomeStorage.Logic.DbContext;
 using HomeStorage.Logic.Enums;
+using HomeStorage.Logic.Exceptions;
 using HomeStorage.Logic.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -48,6 +49,21 @@ namespace HomeStorage.Logic.Abstracts
 
             bool hasAccess = await query.AnyAsync(selector);
             return hasAccess;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="access"></param>
+        /// <param name="user"></param>
+        /// <exception cref="NotAuthorizedException"></exception>
+        protected async Task ThrowIfNoAccess<T>(Guid? id, EAccess access, HomeStorageUser? user = default)
+        {
+            bool hasAccess = await CheckUserAccess<T>(id, access, user);
+            if (hasAccess is false)
+                throw new NotAuthorizedException("You don't have access to the required ressource");
         }
     }
 }

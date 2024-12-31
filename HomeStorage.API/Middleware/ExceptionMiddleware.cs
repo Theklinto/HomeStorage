@@ -1,4 +1,5 @@
 ﻿using HomeStorage.API.Interfaces;
+using System.Text;
 
 namespace HomeStorage.API.Middleware
 {
@@ -22,12 +23,25 @@ namespace HomeStorage.API.Middleware
             using IServiceScope scope = _scopeFactory.CreateScope();
             IEnumerable<IMiddlewareExceptionHandler> exceptionHandlers = scope.ServiceProvider.GetServices<IMiddlewareExceptionHandler>();
 
+            bool handled = false;
             foreach (IMiddlewareExceptionHandler handler in exceptionHandlers)
             {
-                bool handled = await handler.Handle(context, exception);
+                handled = await handler.Handle(context, exception);
                 if (handled)
-                    break;
+                    return;
             }
+
+            string response = exception.ToString();
+            if (exception.InnerException is not null)
+                response += ", " + exception.InnerException.ToString();
+
+            byte[] responseBytes = Encoding.UTF8.GetBytes(response);
+
+            context.Response.Clear();
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "text/plain";
+            await context.Response.Body.WriteAsync(responseBytes);
+            await context.Response.CompleteAsync();
         }
     }
 
